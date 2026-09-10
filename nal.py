@@ -14,6 +14,19 @@ eg = np.array([
 
 b = np.array([2,2,4])
 
+def forward_sub(A):
+    # gaussian forward substitution
+    a = np.copy(A)
+    n,_ = np.shape(a)
+    l = np.zeros_like(a)
+    for k in range(n):
+        for i in range(k+1,n): 
+            l[i-1,k] += a[i,k] / a[k,k]
+            for j in range(k,n):
+                a[i,j] -= l[i-1,k]*a[k,j]
+    return a
+
+
 def gaussian_elim(A,b):
     a = np.copy(A)
     n,_ = np.shape(a)
@@ -22,7 +35,6 @@ def gaussian_elim(A,b):
     for k in range(n):
         for i in range(k+1,n): 
             l[i-1,k] += a[i,k] / a[k,k]
-            print("L ",i,"\n",l)
             for j in range(k,n):
                 a[i,j] -= l[i-1,k]*a[k,j]
             bb[i] -= l[i-1,k]*bb[k]
@@ -53,14 +65,6 @@ print(f"b {b}")
 print(f"b_r {b_r}")
 print(f"x {x}")
 
-#def myfunc():
-#    b = np.random.normal(size=3)
-#    a = b.copy()
-#    a[0]=100
-#    print(b,a)
-#    return b,a
-
-#myfunc()
 
 def gaussian_elim_mult(A,b):
     a = np.copy(A)
@@ -79,29 +83,49 @@ def gaussian_elim_mult(A,b):
 
 
 def lu(x):
-    a = np.copy(x)
+    a = x.copy()
     n,_ = np.shape(a)
     l = np.zeros_like(a)
     u = np.zeros_like(a)
+#    u = forward_sub(x)
     for k in range(n):
         l[k,k] = 1
-        u[k,k] = a[k,k] - np.dot(l[k,0:k],u[0:k,k]) 
+        u[k,k] = a[k,k] - l[k,:k] @ u[:k,k]
+        print(f" u {k} {u}")
         for j in range(k,n):
-            u[k,j] = (a[k,j] - np.dot(l[k,0:k],u[0:k,k])) / l[k,k]
+            print(f" j {j}")
+            u[k,j] = (a[k,j] - l[k,:k] @ u[:k,j]) 
         for i in range(k,n):
-            l[i,k] = (a[i,k] - np.dot(l[i,0:k],u[0:k,k])) / u[k,k]
-
+            l[i,k] = (a[i,k] - l[i,:k] @ u[:k,k]) / u[k,k]
     return l,u
 
+def lu_with_forward(x):
+    a = x.copy()
+    n,_ = np.shape(a)
+    l = np.zeros_like(a)
+    u = forward_sub(a)
+    for k in range(n):
+        l[k,k] = 1
+        for i in range(k,n):
+            l[i,k] = (a[i,k] - l[i,:k] @ u[:k,k]) / u[k,k]
+    return l,u
 
-#print(f'A {X}')
+print(f'A {eg}')
 
-#print(f"determinant {np.linalg.det(X)}")
 
-#l,u = lu(X)
-#
-#print(f' L \n {l}')
-#print(f' U \n {u}')
-#print(f' L@U \n {np.round(l@u,3)}')
-#print(f' A \n {np.round(X,3)} ')
-#print(f' A - L@U \n {np.round(X - l@u)}')
+l,u = lu(eg)
+
+
+print(f' L \n {l}')
+print(f' U \n {u}')
+print(f' L@U \n {np.round(l@u,3)}')
+print(f' A - L@U \n {np.round(eg - l@u)}')
+
+l,u = lu_with_forward(eg)
+
+
+print(f' L \n {l}')
+print(f' U \n {u}')
+print(f' L@U \n {np.round(l@u,3)}')
+print(f' A - L@U \n {np.round(eg - l@u)}')
+
