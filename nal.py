@@ -4,7 +4,7 @@ import numpy as np
 n = 3
 m = 3
 X = np.random.uniform(size=(n,n))
-b = np.random.normal(size=n)
+#b = np.random.normal(size=n)
 
 eg = np.array([
     [1, 2, -1],
@@ -38,7 +38,6 @@ def gaussian_elim(A,b):
             for j in range(k,n):
                 a[i,j] -= l[i-1,k]*a[k,j]
             bb[i] -= l[i-1,k]*bb[k]
-    print("b_r", bb)
     return a,bb
 
 def backsub(A,b):
@@ -58,12 +57,12 @@ a_r,b_r = gaussian_elim(eg,b)
 np.round(a_r,2)
 x = backsub(a_r,b_r)
 
-print("A ", eg)
-print(f"a@x {eg@x}")
-print(f"a_r {a_r}")
-print(f"b {b}")
-print(f"b_r {b_r}")
-print(f"x {x}")
+#print("A ", eg)
+#print(f"a@x {eg@x}")
+#print(f"a_r {a_r}")
+#print(f"b {b}")
+#print(f"b_r {b_r}")
+#print(f"x {x}")
 
 
 def gaussian_elim_mult(A,b):
@@ -91,9 +90,7 @@ def lu(x):
     for k in range(n):
         l[k,k] = 1
         u[k,k] = a[k,k] - l[k,:k] @ u[:k,k]
-        print(f" u {k} {u}")
         for j in range(k,n):
-            print(f" j {j}")
             u[k,j] = (a[k,j] - l[k,:k] @ u[:k,j]) 
         for i in range(k,n):
             l[i,k] = (a[i,k] - l[i,:k] @ u[:k,k]) / u[k,k]
@@ -110,22 +107,80 @@ def lu_with_forward(x):
             l[i,k] = (a[i,k] - l[i,:k] @ u[:k,k]) / u[k,k]
     return l,u
 
-print(f'A {eg}')
+#print(f'A {eg}')
+#
+#
+#l,u = lu(eg)
+#
+#
+#print(f' L \n {l}')
+#print(f' U \n {u}')
+#print(f' L@U \n {np.round(l@u,3)}')
+#print(f' A - L@U \n {np.round(eg - l@u)}')
+#
+#l,u = lu_with_forward(eg)
+#
+#
+#print(f' L \n {l}')
+#print(f' U \n {u}')
+#print(f' L@U \n {np.round(l@u,3)}')
+#print(f' A - L@U \n {np.round(eg - l@u)}')
+
+def solve(a,b):
+    # perform gaussian elimination and backsubstitutionproviding the reduced matrix a_r,b_r and solution vector x 
+    a_r,b_r = gaussian_elim(a,b)
+    x = backsub(a_r,b_r)
+    return a_r,b_r,x
+
+#a = np.array([
+#    [0.0001,1],
+#    [1,1]
+#])
+#b = np.array([1,2])
+
+#
+#a_r,b_r,x = solve(a,b)
+#
+#print(a_r)
+#print(b_r)
+#print(x)
+#
+def scaled_partial(x,b):
+    # scaled partial pivoting
+    a = x.copy()
+    bb = b.copy()
+    n , _  = np.shape(a)
+    l = np.arange(n)
+    s = np.zeros(n)
+    for i in range(n):
+        s_max = 0
+        for j in range(n):
+            s_max = np.max(np.array([s_max,np.abs(a[i,j])]))
+        s[i] = s_max
+
+    for k in range(n-1):
+        r_max = 0
+        for i in range(k,n):
+            r = np.abs(a[l[i],k] / s[l[i]])
+            if r > r_max:
+                r_max = r
+                j = i
+
+        l[[k,j]] = l[[j,k]]
+
+        for i in range(k+1,n):
+            l_mult = a[l[i],k] / a[l[k],k]
+#            a[l[i-1],k] = l_mult
+            for j in range(k+1,n):
+                a[l[i],j] -= l_mult*a[l[k],j]
+            bb[l[i]] -= a[i,k]*b[l[k]]
+
+    return a,bb
 
 
-l,u = lu(eg)
+print("A \n",eg) 
+ans,b_r = scaled_partial(eg,b)
+print(f"Scaled partial \n {ans} {b_r}")
+#print(backsub(ans,b_r))
 
-
-print(f' L \n {l}')
-print(f' U \n {u}')
-print(f' L@U \n {np.round(l@u,3)}')
-print(f' A - L@U \n {np.round(eg - l@u)}')
-
-l,u = lu_with_forward(eg)
-
-
-print(f' L \n {l}')
-print(f' U \n {u}')
-print(f' L@U \n {np.round(l@u,3)}')
-print(f' A - L@U \n {np.round(eg - l@u)}')
 
