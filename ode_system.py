@@ -62,8 +62,8 @@ ax.scatter(t,x,y,zdir='t')
 ax.set_xlabel('t')
 ax.set_ylabel('x')
 ax.set_zlabel('y')
-plt.show()
 plt.savefig("odes/taylor_system.jpg")
+plt.show()
 
 
 s0=0.999
