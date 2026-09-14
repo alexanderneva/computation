@@ -32,18 +32,19 @@ exprs = [expr_0,expr_1,expr_2,expr_3,expr_4,expr_5]
 
 
 test = np.linspace(-10,10,25)
-
+I, J = np.meshgrid(test,test)
+step = 0.1
 #fig, ax = plt.subplots(3,2)
 
-for func,expr in zip(funcs,exprs):
-    index = funcs.index(func)
-    for i in test:
-        for j in test:
-            #q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
-            q = plt.quiver(i,j,i+0.5,0.5*func(i,j)+j)
-            plt.quiverkey(q, X=10,Y=10,U=0.5,label='Test',labelpos='E')
-            #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
-            plt.title("Equation "+expr)
+for index,(func,expr) in enumerate(zip(funcs,exprs)):
+    plt.figure()
+    U = I + step
+    V = step * func(I,J) + J
+    #q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
+    q = plt.quiver(I,J,U,V,scale=25)
+    plt.quiverkey(q, X=0.3,Y=1.1,U=2,label='Length of 2',labelpos='E')
+    #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
+    plt.title("Equation "+expr)
     plt.savefig(f'fields/field{index}.jpg')
 
 #    plt.show()
