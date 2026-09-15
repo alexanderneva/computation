@@ -77,134 +77,134 @@ def sir(t,x,y,z):
 
 
 
-def taylor_system_3(f,s,i,r,a,b,n):
-    """Second Order Approximation for 3-dim ode"""
-    t = a
-    h = (b - a) / n
-    points = np.zeros([4,n])
-    for k in range(n):
-        s_p,i_p,r_p = f(t,s,i,r)
-        s_pp = -lamb*(i_p*s + s_p*i)
-        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
-        r_pp = gamma*i_p
-
-   #     x_ppp = x_pp - y_pp - 2 - 6*t
-   #     y_ppp = x_pp + y_pp -8 + 6*t
-   #     x_pppp = x_ppp - y_ppp - 6
-   #     y_pppp = x_ppp + y_ppp + 6
-
-        s += h*(s_p + 0.5*h*(s_pp)) 
-        i +=  h*(i_p + 0.5*h*(i_pp)) 
-        r +=  h*(r_p + 0.5*h*(r_pp)) 
-        t += h
-        points[0,k] = t
-        points[1,k] = s
-        points[2,k] = i
-        points[3,k] = r
-
-    return points
-
-t,s,i,r = taylor_system_3(sir,s0,0.001,0,0,100,200)
-
-plt.plot(t,s, label='susceptible')
-plt.plot(t,i, label='infected')
-plt.plot(t,r, label='recovered')
-plt.xlabel('Time')
-plt.ylabel('Percentage')
-plt.title(f"Second order approx lambda {lamb} gamma {gamma}")
-plt.legend()
-plt.savefig('odes/sir_system_2.jpg')
-plt.show()
-plt.close()
-
-
-def taylor_system_4(f,s,i,r,a,b,n):
-    """Third Order Approximation for 3-dim ode"""
-    t = a
-    h = (b - a) / n
-    points = np.zeros([4,n])
-    for k in range(n):
-        s_p,i_p,r_p = f(t,s,i,r)
-        s_pp = -lamb*(i_p*s + s_p*i)
-        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
-        r_pp = gamma*i_p
-        s_ppp = -lamb*(i_pp*s + 2*s_p*i_p + i*s_pp)
-        i_ppp = s_ppp - gamma*i_pp
-        r_ppp = gamma*i_pp
-
-
-        s += h*(s_p + 0.5*h*(s_pp + h*(1/3)*s_ppp))
-        i +=  h*(i_p + 0.5*h*(i_pp + h*(1/3)*(i_ppp))) 
-        r +=  h*(r_p + 0.5*h*(r_pp + h*(1/3)*(r_ppp)))
-        t += h
-        points[0,k] = t
-        points[1,k] = s
-        points[2,k] = i
-        points[3,k] = r
-
-    return points
-
-
-t,s,i,r = taylor_system_4(sir,s0,0.001,0,0,100,200)
-
-plt.plot(t,s, label='susceptible')
-plt.plot(t,i, label='infected')
-plt.plot(t,r, label='recovered')
-plt.xlabel('Time')
-plt.ylabel('Percentage')
-plt.title(f"Third order approx lambda {lamb} gamma {gamma}")
-plt.legend()
-plt.savefig('odes/sir_system_3.jpg')
-plt.show()
-plt.close()
-
-
-def taylor_system_5(f,s,i,r,a,b,n):
-    """Fourth Order Approximation for 3-dim ode"""
-    t = a
-    h = (b - a) / n
-    points = np.zeros([4,n])
-    for k in range(n):
-        s_p,i_p,r_p = f(t,s,i,r)
-        s_pp = -lamb*(i_p*s + s_p*i)
-        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
-        r_pp = gamma*i_p
-        s_ppp = -lamb*(i_pp*s + 2*s_p*i_p + i*s_pp)
-        i_ppp = s_ppp - gamma*i_pp
-        r_ppp = gamma*i_pp
-        s_pppp = -lamb*(i_ppp*s + 3*s_p*i_pp + 3*i_p*s_pp)
-        i_pppp = s_pppp - gamma*i_ppp
-        r_pppp = gamma*i_ppp
-
-   #     x_ppp = x_pp - y_pp - 2 - 6*t
-   #     y_ppp = x_pp + y_pp -8 + 6*t
-   #     x_pppp = x_ppp - y_ppp - 6
-   #     y_pppp = x_ppp + y_ppp + 6
-
-        s += h*(s_p + 0.5*h*(s_pp + h*(1/3)*(s_ppp + h*0.25*s_pppp)))
-        i +=  h*(i_p + 0.5*h*(i_pp + h*(1/3)*(i_ppp+ h*0.25*i_pppp))) 
-        r +=  h*(r_p + 0.5*h*(r_pp + h*(1/3)*(r_ppp+ h*0.25*r_pppp)))
-        t += h
-        points[0,k] = t
-        points[1,k] = s
-        points[2,k] = i
-        points[3,k] = r
-
-    return points
-
-
-t,s,i,r = taylor_system_5(sir,s0,0.001,0,0,100,200)
-
-plt.plot(t,s, label='susceptible')
-plt.plot(t,i, label='infected')
-plt.plot(t,r, label='recovered')
-plt.xlabel('Time')
-plt.ylabel('Percentage')
-plt.title(f"Fourth order approx lambda {lamb} gamma {gamma}")
-plt.legend()
-plt.savefig('odes/sir_system_4.jpg')
-plt.show()
-plt.close()
+#def taylor_system_3(f,s,i,r,a,b,n):
+#    """Second Order Approximation for 3-dim ode"""
+#    t = a
+#    h = (b - a) / n
+#    points = np.zeros([4,n])
+#    for k in range(n):
+#        s_p,i_p,r_p = f(t,s,i,r)
+#        s_pp = -lamb*(i_p*s + s_p*i)
+#        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
+#        r_pp = gamma*i_p
+#
+#   #     x_ppp = x_pp - y_pp - 2 - 6*t
+#   #     y_ppp = x_pp + y_pp -8 + 6*t
+#   #     x_pppp = x_ppp - y_ppp - 6
+#   #     y_pppp = x_ppp + y_ppp + 6
+#
+#        s += h*(s_p + 0.5*h*(s_pp)) 
+#        i +=  h*(i_p + 0.5*h*(i_pp)) 
+#        r +=  h*(r_p + 0.5*h*(r_pp)) 
+#        t += h
+#        points[0,k] = t
+#        points[1,k] = s
+#        points[2,k] = i
+#        points[3,k] = r
+#
+#    return points
+#
+#t,s,i,r = taylor_system_3(sir,s0,0.001,0,0,100,200)
+#
+#plt.plot(t,s, label='susceptible')
+#plt.plot(t,i, label='infected')
+#plt.plot(t,r, label='recovered')
+#plt.xlabel('Time')
+#plt.ylabel('Percentage')
+#plt.title(f"Second order approx lambda {lamb} gamma {gamma}")
+#plt.legend()
+#plt.savefig('odes/sir_system_2.jpg')
+#plt.show()
+#plt.close()
+#
+#
+#def taylor_system_4(f,s,i,r,a,b,n):
+#    """Third Order Approximation for 3-dim ode"""
+#    t = a
+#    h = (b - a) / n
+#    points = np.zeros([4,n])
+#    for k in range(n):
+#        s_p,i_p,r_p = f(t,s,i,r)
+#        s_pp = -lamb*(i_p*s + s_p*i)
+#        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
+#        r_pp = gamma*i_p
+#        s_ppp = -lamb*(i_pp*s + 2*s_p*i_p + i*s_pp)
+#        i_ppp = s_ppp - gamma*i_pp
+#        r_ppp = gamma*i_pp
+#
+#
+#        s += h*(s_p + 0.5*h*(s_pp + h*(1/3)*s_ppp))
+#        i +=  h*(i_p + 0.5*h*(i_pp + h*(1/3)*(i_ppp))) 
+#        r +=  h*(r_p + 0.5*h*(r_pp + h*(1/3)*(r_ppp)))
+#        t += h
+#        points[0,k] = t
+#        points[1,k] = s
+#        points[2,k] = i
+#        points[3,k] = r
+#
+#    return points
+#
+#
+#t,s,i,r = taylor_system_4(sir,s0,0.001,0,0,100,200)
+#
+#plt.plot(t,s, label='susceptible')
+#plt.plot(t,i, label='infected')
+#plt.plot(t,r, label='recovered')
+#plt.xlabel('Time')
+#plt.ylabel('Percentage')
+#plt.title(f"Third order approx lambda {lamb} gamma {gamma}")
+#plt.legend()
+#plt.savefig('odes/sir_system_3.jpg')
+#plt.show()
+#plt.close()
+#
+#
+#def taylor_system_5(f,s,i,r,a,b,n):
+#    """Fourth Order Approximation for 3-dim ode"""
+#    t = a
+#    h = (b - a) / n
+#    points = np.zeros([4,n])
+#    for k in range(n):
+#        s_p,i_p,r_p = f(t,s,i,r)
+#        s_pp = -lamb*(i_p*s + s_p*i)
+#        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
+#        r_pp = gamma*i_p
+#        s_ppp = -lamb*(i_pp*s + 2*s_p*i_p + i*s_pp)
+#        i_ppp = s_ppp - gamma*i_pp
+#        r_ppp = gamma*i_pp
+#        s_pppp = -lamb*(i_ppp*s + 3*s_p*i_pp + 3*i_p*s_pp)
+#        i_pppp = s_pppp - gamma*i_ppp
+#        r_pppp = gamma*i_ppp
+#
+#   #     x_ppp = x_pp - y_pp - 2 - 6*t
+#   #     y_ppp = x_pp + y_pp -8 + 6*t
+#   #     x_pppp = x_ppp - y_ppp - 6
+#   #     y_pppp = x_ppp + y_ppp + 6
+#
+#        s += h*(s_p + 0.5*h*(s_pp + h*(1/3)*(s_ppp + h*0.25*s_pppp)))
+#        i +=  h*(i_p + 0.5*h*(i_pp + h*(1/3)*(i_ppp+ h*0.25*i_pppp))) 
+#        r +=  h*(r_p + 0.5*h*(r_pp + h*(1/3)*(r_ppp+ h*0.25*r_pppp)))
+#        t += h
+#        points[0,k] = t
+#        points[1,k] = s
+#        points[2,k] = i
+#        points[3,k] = r
+#
+#    return points
+#
+#
+#t,s,i,r = taylor_system_5(sir,s0,0.001,0,0,100,200)
+#
+#plt.plot(t,s, label='susceptible')
+#plt.plot(t,i, label='infected')
+#plt.plot(t,r, label='recovered')
+#plt.xlabel('Time')
+#plt.ylabel('Percentage')
+#plt.title(f"Fourth order approx lambda {lamb} gamma {gamma}")
+#plt.legend()
+#plt.savefig('odes/sir_system_4.jpg')
+#plt.show()
+#plt.close()
 
  
 # adding a recovered back into susceptible population at rate delta
@@ -239,20 +239,53 @@ def taylor_system_6(f,delta,gamma,lamb,s,i,r,a,b,n):
     return points
 
 
-deltas = np.linspace(0.25,0.75,3)
-gammas = np.linspace(0.25,0.75,3)
-lambdas = np.linspace(0.25,0.75,3)
+##deltas = np.linspace(0.25,0.75,3)
+#gammas = np.linspace(0.25,0.75,3)
+#lambdas = np.linspace(0.25,0.75,3)
+#
+#for delta in deltas:
+#    for gamma in gammas:
+#        for lamb in lambdas:
+#            t,s,i,r = taylor_system_6(sir_f,delta,gamma,lamb,0.9,0.1,0,0,100,200)
+#            plt.plot(t,s, label='susceptible')
+#            plt.plot(t,i, label='infected')
+#            plt.plot(t,r, label='recovered')
+#            plt.xlabel('Time')
+#            plt.ylabel('Percentage')
+#            plt.title(f"Second order approx lambda {lamb} gamma {gamma} delta {delta}")
+#            plt.legend()
+#            plt.savefig(f'odes/sir_system_{delta}_{gamma}_{lamb}.jpg')
+#            plt.show()
+#            plt.close()
 
-for delta in deltas:
-    for gamma in gammas:
-        for lamb in lambdas:
-            t,s,i,r = taylor_system_6(sir_f,delta,gamma,lamb,0.9,0.1,0,0,100,200)
-            plt.plot(t,s, label='susceptible')
-            plt.plot(t,i, label='infected')
-            plt.plot(t,r, label='recovered')
-            plt.xlabel('Time')
-            plt.ylabel('Percentage')
-            plt.title(f"Second order approx lambda {lamb} gamma {gamma} delta {delta}")
-            plt.legend()
-            plt.savefig(f'odes/sir_system_{delta}_{gamma}_{lamb}.jpg')
-            plt.show()
+def rk_system(f,s,i,r,a,b,n):
+    t = a
+    h = (b - a) / n
+    points = np.zeros([4,n])
+    for k in range(n):
+        K1 = f(t,s,i,r)
+        K2 = f(t+0.5*h,s+0.5*h*K1[0],i+0.5*h*K1[1],r+0.5*h*K1[2])
+        K3 = f(t+0.5*h,s+0.5*h*K2[0],i+0.5*h*K2[1],r+0.5*h*K2[2])
+        K4 = f(t+h, s + h*K3[0], i + h*K3[1], r + h*K3[2])
+        t += h
+        s += h / 6 *(K1[0]+2*K2[0]+2*K3[0]+K4[0])
+        i += h / 6 *(K1[1]+2*K2[1]+2*K3[1]+K4[1])
+        r += h / 6 *(K1[2]+2*K2[2]+2*K3[2]+K4[2])
+        points[0,k] = t
+        points[1,k] = s
+        points[2,k] = i
+        points[3,k] = r
+    return points
+
+t,s,i,r = rk_system(sir,0.9,0.1,0,0,100,200)
+
+plt.plot(t,s, label='susceptible')
+plt.plot(t,i, label='infected')
+plt.plot(t,r, label='recovered')
+plt.xlabel('Time')
+plt.ylabel('Percentage')
+plt.title(f"RK4 approx lambda {lamb} gamma {gamma}")
+plt.legend()
+plt.savefig('odes/sir_system_rk.jpg')
+plt.show()
+plt.close()
