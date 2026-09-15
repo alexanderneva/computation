@@ -45,7 +45,7 @@ def taylor_system_2(f,x,y,a,b,n):
         for j in range(2):
             xs[j] = x + h*(points[j,0] + 0.5*h*(points[j,1] + (1/3)*h*(points[j,2]+0.25*h*points[j,3])))
         t += h
-        print(f"{i,t,xs}")
+#        print(f"{i,t,xs}")
 
     return xs
 
@@ -64,6 +64,7 @@ ax.set_ylabel('x')
 ax.set_zlabel('y')
 plt.savefig("odes/taylor_system.jpg")
 plt.show()
+plt.close()
 
 
 s0=0.999
@@ -114,6 +115,7 @@ plt.title(f"Second order approx lambda {lamb} gamma {gamma}")
 plt.legend()
 plt.savefig('odes/sir_system_2.jpg')
 plt.show()
+plt.close()
 
 
 def taylor_system_4(f,s,i,r,a,b,n):
@@ -154,6 +156,7 @@ plt.title(f"Third order approx lambda {lamb} gamma {gamma}")
 plt.legend()
 plt.savefig('odes/sir_system_3.jpg')
 plt.show()
+plt.close()
 
 
 def taylor_system_5(f,s,i,r,a,b,n):
@@ -201,6 +204,7 @@ plt.title(f"Fourth order approx lambda {lamb} gamma {gamma}")
 plt.legend()
 plt.savefig('odes/sir_system_4.jpg')
 plt.show()
+plt.close()
 
  
 # adding a recovered back into susceptible population at rate delta
