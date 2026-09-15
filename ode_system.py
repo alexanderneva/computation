@@ -201,3 +201,54 @@ plt.title(f"Fourth order approx lambda {lamb} gamma {gamma}")
 plt.legend()
 plt.savefig('odes/sir_system_4.jpg')
 plt.show()
+
+ 
+# adding a recovered back into susceptible population at rate delta
+
+#delta = 0.25
+def sir_f(t,x,y,z,delta,lamb,gamma):
+    return -lamb*x*y+delta*x*z, lamb*x*y - gamma*y,gamma*y-delta*x*z
+
+def taylor_system_6(f,delta,gamma,lamb,s,i,r,a,b,n):
+    """Second Order Approximation for 3-dim ode with feedback"""
+    t = a
+    h = (b - a) / n
+    points = np.zeros([4,n])
+    for k in range(n):
+        s_p,i_p,r_p = f(t,s,i,r,delta,lamb,gamma)
+        s_pp = -lamb*(i_p*s + s_p*i) + delta*(r_p*s+r*s_p)
+        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
+        r_pp = gamma*i_p - delta*(r_p*s + r*s_p)
+        t += h
+
+        s += h*(s_p + 0.5*s_pp)
+        i += h*(i_p + 0.5*i_pp)
+        r += h*(r_p + 0.5*r_pp)
+
+
+
+        points[0,k] = t
+        points[1,k] = s
+        points[2,k] = i
+        points[3,k] = r
+
+    return points
+
+
+deltas = np.linspace(0.25,0.75,3)
+gammas = np.linspace(0.25,0.75,3)
+lambdas = np.linspace(0.25,0.75,3)
+
+for delta in deltas:
+    for gamma in gammas:
+        for lamb in lambdas:
+            t,s,i,r = taylor_system_6(sir_f,delta,gamma,lamb,0.9,0.1,0,0,100,200)
+            plt.plot(t,s, label='susceptible')
+            plt.plot(t,i, label='infected')
+            plt.plot(t,r, label='recovered')
+            plt.xlabel('Time')
+            plt.ylabel('Percentage')
+            plt.title(f"Second order approx lambda {lamb} gamma {gamma} delta {delta}")
+            plt.legend()
+            plt.savefig(f'odes/sir_system_{delta}_{gamma}_{lamb}.jpg')
+            plt.show()
