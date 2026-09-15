@@ -228,3 +228,90 @@ print(l_test@u_test)
 print(np.abs(l-l_test))
 print(np.abs(u-u_test))
 print(l@u)
+
+def doolittle(A):
+    a = A.copy()
+    n,_ = np.shape(A)
+    l = np.eye(n)
+    u = np.zeros_like(A,dtype=float)
+
+    for k in range(n):
+        for j in range(k,n):
+            u[k,j] = a[k,j] - l[k,:]@u[:,j]
+        for i in range(k+1,n):
+            l[i,k] = (a[i,k] - l[i,:]@u[:,k]) / u[k,k]
+    return l,u
+
+
+def l_solve(L,b):
+    n = np.size(b)
+    z = np.zeros(n)
+    z[0]=b[0]
+    for i in range(1,n):
+        z[i] = b[i] - L[i,:]@z
+    return z
+
+def u_solve(U,z):
+    n = np.size(b)
+    x = np.zeros(n)
+    x[n-1] = z[n-1] / U[n-1,n-1]
+    for i in reversed(range(n)):
+        x[i] = (z[i] - u[i,i+1:]@x[i+1:]) / u[i,i]
+    return x
+
+
+def lu_solve(A,b):
+    l,u = doolittle(A)
+    z = l_solve(l,b)
+    x = u_solve(u,z)
+    return x
+
+l,u = doolittle(A)
+print("Difference ", lu_solve(l,b)-np.linalg.solve(A,b))
+
+def make_spd(n):
+    M = np.random.randn(n,n)
+    spd = M@M.T + n*np.eye(n)
+    return spd
+
+
+A = make_spd(n)
+
+def cholesky(A):
+    a = A.copy()
+    n = A.shape[0]
+    l = np.zeros_like(A,dtype=float)
+    for k in range(n):
+        value = a[k,k] - l[k,:k]@l[k,:k]
+        l[k,k] = np.sqrt(value)
+        for i in range(k+1,n):
+            l[i,k] = (a[i,k] - l[i,:k]@l[k,:k]) / l[k,k]
+    return l
+
+print(np.round(A,2))
+l = cholesky(A)
+print(np.round(l,2))
+print(l@l.T-A)
+
+B = make_spd(n)
+
+def big_solve(A,B):
+    x = np.zeros_like(A,dtype=float)
+    n = A.shape[0]
+    for i in range(n):
+        _,_,x_i = solve(A,B[:,i])
+        #x_i = lu_solve(A,B[:,i])
+        #x[:,i]+= lu_solve(A,B[:,i])
+        x[:,i]+= x_i
+    return x
+
+X = big_solve(A,B)
+print("B",B)
+print("X",X)
+print("AX",A@X)
+
+print("Difference big_solve X - np.linalg X \n", np.round(X - np.linalg.solve(A,B),5))
+
+
+inverse = big_solve(A,np.eye(A.shape[0]))
+print(np.round(A@inverse,5))
