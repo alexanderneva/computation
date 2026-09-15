@@ -184,3 +184,36 @@ print(f"Scaled partial \n {ans} {b_r}")
 #print(backsub(ans,b_r))
 
 
+def tri(A,b):
+    n, _ = np.shape(A)
+    a = np.diag(A,k=-1)
+    c = np.diag(A,k= 1)
+    d = np.diag(A,k=0).copy()
+    b = b.copy()
+    x = np.zeros(n)
+    for i in range(1,n):
+        l = a[i-1]/d[i-1]
+        d[i] -= l*c[i-1]
+        b[i] -= l*b[i-1]
+    x[n-1] =+ b[n-1]/d[n-1]
+    for i in reversed(range(n-1)):
+        x[i] = (b[i] - c[i]*x[i+1]) / d[i]
+
+    return x
+
+
+
+A = np.array([
+    [1,2,0],
+    [2,2,4],
+    [0,3,6]
+])
+
+b = np.array([1,0,2])
+
+ans = tri(A,b)
+test = np.linalg.solve(A,b)
+
+print(f"Answer {ans}")
+print(f"abs error {np.abs(ans-test)}")
+
