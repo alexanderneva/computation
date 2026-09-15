@@ -107,24 +107,24 @@ def lu_with_forward(x):
             l[i,k] = (a[i,k] - l[i,:k] @ u[:k,k]) / u[k,k]
     return l,u
 
-#print(f'A {eg}')
-#
-#
-#l,u = lu(eg)
-#
-#
-#print(f' L \n {l}')
-#print(f' U \n {u}')
-#print(f' L@U \n {np.round(l@u,3)}')
-#print(f' A - L@U \n {np.round(eg - l@u)}')
-#
-#l,u = lu_with_forward(eg)
-#
-#
-#print(f' L \n {l}')
-#print(f' U \n {u}')
-#print(f' L@U \n {np.round(l@u,3)}')
-#print(f' A - L@U \n {np.round(eg - l@u)}')
+print(f'A {eg}')
+
+
+l,u = lu(eg)
+
+
+print(f' L \n {l}')
+print(f' U \n {u}')
+print(f' L@U \n {np.round(l@u,3)}')
+print(f' A - L@U \n {np.round(eg - l@u)}')
+
+l,u = lu_with_forward(eg)
+
+
+print(f' L \n {l}')
+print(f' U \n {u}')
+print(f' L@U \n {np.round(l@u,3)}')
+print(f' A - L@U \n {np.round(eg - l@u)}')
 
 def solve(a,b):
     # perform gaussian elimination and backsubstitutionproviding the reduced matrix a_r,b_r and solution vector x 
@@ -178,10 +178,10 @@ def scaled_partial(x,b):
     return a,bb
 
 
-print("A \n",eg) 
-ans,b_r = scaled_partial(eg,b)
-print(f"Scaled partial \n {ans} {b_r}")
-#print(backsub(ans,b_r))
+#print("A \n",eg) 
+#ans,b_r = scaled_partial(eg,b)
+#print(f"Scaled partial \n {ans} {b_r}")
+##print(backsub(ans,b_r))
 
 
 def tri(A,b):
@@ -217,3 +217,14 @@ test = np.linalg.solve(A,b)
 print(f"Answer {ans}")
 print(f"abs error {np.abs(ans-test)}")
 
+
+#########
+
+import scipy as sci
+l, u = lu(A)
+l_test,u_test = sci.linalg.lu(A, permute_l=True)
+
+print(l_test@u_test)
+print(np.abs(l-l_test))
+print(np.abs(u-u_test))
+print(l@u)

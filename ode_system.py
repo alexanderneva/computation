@@ -289,3 +289,49 @@ plt.legend()
 plt.savefig('odes/sir_system_rk.jpg')
 plt.show()
 plt.close()
+
+
+def f_competition(t,x,y,a,b,m,n):
+    return a*x - b*x*y,m*y-n*x*y
+
+def taylor_competition_2(f,a,b,m,n,x,y,t0,t1,n_step):
+    """Second order approximation of competition model"""
+    t = t0
+    h = (t1 - t0) / n_step
+    points = np.zeros([3,n_step])
+    for k in range(n_step):
+        points[0,k] += t
+        points[1,k] += x
+        points[2,k] += y
+        x_p,y_p= f(t,x,y,a,b,m,n)
+        x_pp = a*x_p - b*(x_p*y+x*y_p)
+        y_pp = m*y_p - n*(x_p*y+x*y_p)
+        t += h
+        x += h*(x_p+ 0.5*h*x_pp)
+        y += h*(y_p+ 0.5*h*y_pp)
+    
+    return points
+
+    
+a_s = np.arange(0.1,0.3,0.1)
+b_s = np.arange(0.1,0.3,0.1)
+m_s = np.arange(0.1,0.3,0.1)
+n_s = np.arange(0.1,0.3,0.1)
+
+for a in a_s:
+    for b in b_s:
+        for m in m_s:
+            for n in n_s:
+
+                t,x,y=taylor_competition_2(f_competition,a,b,m,n,1,1,0,20,100)
+                plt.plot(20*t/100,x, label='x')
+                plt.plot(20*t/100,y, label='y')
+                #plt.ylim(-10,10)
+                #plt.xlim(-1,1)
+                plt.xlabel('t')
+                plt.ylabel('y')
+                plt.title(f"Competition 2nd-order a {a} b {b} \n m {m} n{n}")
+                plt.legend()
+                plt.savefig(f'odes/competition_system_{a}{b}{m}{n}.jpg')
+                plt.close()
+
