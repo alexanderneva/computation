@@ -11,14 +11,14 @@ tz = f(tt,yy);
 quiver (tt,yy,tt,tz);
 title("t - y");
 
-print -djpg ../fields/figure.jpg;
+print -djpg ../fields/matlab_figure.jpg;
 
 f_2 = @(t,y) [1 - t.^2 - y.^2];
 
 tz = f_2 (tt, yy);
 quiver (tt,yy,tt,tz);
 title("1 - t^2 - y^2")
-print -djpg ../fields/figure2.jpg;
+print -djpg ../fields/matlab_figure2.jpg;
 
 f_3 = @(t,y) [sin(t)-cos(y)];
 
@@ -26,7 +26,7 @@ tz = f_3 (tt, yy);
 
 quiver(tt,yy,tt,tz);
 title("sin(t)-cos(y)");
-print -djpg ../fields/figure3.jpg;
+print -djpg ../fields/matlab_figure3.jpg;
 
 f_4 = @(t,y) [t.^2 + y.^2];
 
