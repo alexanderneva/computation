@@ -53,7 +53,7 @@ def eval_bisection(f,a,b,n_steps):
     
 
 def f(x):
-    return np.sin(x**2)
+    return x**2-3
 
 
 #a_0 = f(0)
@@ -65,19 +65,35 @@ def f(x):
 #a_3 = f(-a_2)-a_2
 #print("a_3 ", a_3)
 
-eval_bisection(f,-0.5,5,100)
+#eval_bisection(f,-0.5,5,100)
 
-def false_position(f,a,b,n_steps):
+def false_position(f,a,b,n_steps,eps):
     f_a = f(a)
     f_b = f(b)
     f_c = 0
     c = 0
+    error = b - a
     if np.sign(f_a) == np.sign(f_b):
         print(f"Same sign of function at [{a} , {b}]")
         return a,b,f_a,f_b
-    return 0
+    c += (a*f_b - b*f_a) / (f(b)-f(a))
+    f_c += f(c)
+    for i in range(n_steps):
+        error /= 2
+        c = a + error
+        f_c += f(c)
+        if np.abs(error) < eps:
+            return i,c,f_c,error
+        if np.sign(f_a)!= np.sign(f_c):
+            b = c
+            f_b = f_c
+        else:
+            a = c
+            f_a = f_c
+    return c,f_c
 
-false_position(f,0,1,100)
+print(false_position(f,1,2,100,10e-5))
+print(bisection(f,1,2,100,10e-5))
 
 
 
