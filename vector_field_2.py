@@ -64,7 +64,7 @@ for index,exprs in enumerate(exprs_pairs):
     #q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
     length = np.sqrt(U**2 + V**2)
     q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
-    plt.quiverkey(q, X=0.3,Y=1.1,U=1,label='Length of 1',labelpos='E')
+    plt.quiverkey(q, X=0.1,Y=1.1,U=1,label='Length of 1',labelpos='E')
     #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
     plt.title(f"Equation u_1 = {exprs[0]} \n u_2 = {exprs[1]} ")
     plt.savefig(f'fields/field_2_{index}.jpg')
