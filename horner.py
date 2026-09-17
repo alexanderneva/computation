@@ -13,9 +13,9 @@ def poly(a,x):
 
 #print(poly(a,x))
 
-for i in range(2):
-    for j in range(2):
-        for k in range(2):
-            print(f"Polynomial of index {i} {j} {k} Answer: {poly(np.array([i,j,k]),3)}")
-
+#for i in range(2):
+#    for j in range(2):
+#        for k in range(2):
+#            print(f"Polynomial of index {i} {j} {k} Answer: {poly(np.array([i,j,k]),3)}")
+#
 
