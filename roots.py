@@ -92,8 +92,68 @@ def false_position(f,a,b,n_steps,eps):
             f_a = f_c
     return c,f_c
 
+
+def newton(f,f_prime,x,nmax,epsilon,delta):
+    f_x = f(x)
+    for n in range(nmax):
+        f_p = f_prime(x)
+        if f_p < delta:
+            print("Small derivative ", f_p)
+            return 0
+        d = f_x / f_p
+        x -= d
+        f_x = f(x)
+        if np.abs(d) < epsilon:
+            print(f"Convergence at step {n}")
+            return x,f_x
+    return x,f_x
+
+
 print(false_position(f,1,2,100,10e-5))
 print(bisection(f,1,2,100,10e-5))
 
 
+from math import cbrt
 
+def f(x):
+    return x**3 - 3
+
+def f_p(x):
+    return 3*x**2
+ro, f_root = newton(f,f_p,1,100,10e-5,10e-5)
+
+print(f"Root {ro}, f(root) {f_root} \n actual {cbrt(3)} relative error {(ro-cbrt(3))/cbrt(3)}")
+
+
+from scipy.differentiate import jacobian
+
+def system(u):
+    t = u[0]
+    x = u[1]
+    y = u[2]
+    return t*y+x, x**2-t*y, t*y**2
+
+
+iv = np.array([-2.,2.,-1.])
+def newton_rd_example(system,iv,n_step):
+    m = iv.shape[0]
+    points = np.zeros(shape=[m,n_step])
+    x = iv.copy()
+    for i in range(n_step):
+        points[:,i] += x
+        jac = jacobian(system, x)
+        jac_matrix = jac.df
+        h = np.linalg.solve(jac_matrix,system(x))
+        #print(h)
+        x -= h
+    return x, points
+
+#print(iv)
+iv, points = newton_rd_example(system,iv,15)
+
+ax = plt.figure().add_subplot(projection='3d')
+ax.plot(points[:,0],points[:,1],points[:,2])
+ax.set_xlabel('t')
+ax.set_ylabel('x')
+ax.set_zlabel('y')
+plt.show()
