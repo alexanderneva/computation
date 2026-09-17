@@ -2,41 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def moment_test(f,max_step):
-    """Simple test for highest x term"""
-    n = max_step
-
-    t = np.arange(0,50)
-    f_min = np.min(f(t))
-    max_errors=np.zeros(n)
-    for j in range(n):
-
-        deg = j
-        x = np.zeros(50)
-        for i in range(1,50):
-            x[i] += f(i)/i**j-1
-
-        max_error = np.max(x)
-        max_errors[j]+=max_error
-        if max_error == np.min(max_errors[j-1]):
-            deg = j-1
-
-            print("Max error reached at step", deg)
-            return deg
-
-        #print(f"Max error {np.max(x)} Average Error {np.mean(x)}")
-        print(f"Max errors {max_errors}")
-        plt.plot(t, x)
-        plt.title(f"Moment for exponent {j}")
-        plt.show()
-
-    return deg
-
-
-def f(x):
-    return x**9+1
-
-print("Moment test ", moment_test(f,13))
 
 def bisection(f,a,b,n_step,eps):
     f_a = f(a)
@@ -89,7 +54,8 @@ def eval_bisection(f,a,b,n_steps):
 
 def f(x):
     return np.sin(x**2)
-eval_bisection(f,-0.5,5,100)
+
+
 #a_0 = f(0)
 #print("a_0 ", a_0)
 #a_1 = f(-a_0)-a_0
@@ -99,23 +65,19 @@ eval_bisection(f,-0.5,5,100)
 #a_3 = f(-a_2)-a_2
 #print("a_3 ", a_3)
 
+eval_bisection(f,-0.5,5,100)
+
+def false_position(f,a,b,n_steps):
+    f_a = f(a)
+    f_b = f(b)
+    f_c = 0
+    c = 0
+    if np.sign(f_a) == np.sign(f_b):
+        print(f"Same sign of function at [{a} , {b}]")
+        return a,b,f_a,f_b
+    return 0
+
+false_position(f,0,1,100)
 
 
-    #        print(f"Max error {np.max(x)} Average Error {np.mean(x)}")
-    #        plt.plot(t, x)
-    #        plt.title(f"Moment for exponent {j}")
-    #        plt.show()
 
-#m = moment_test(f,25)
-#print(m)
-
-    #def coeffs(f):
-    #    l = moment_test(f,5)
-    #    a = np.zeros(5)
-    #    a[0] = f(0)
-    #    for i in range(1,5):
-    #        a[i] += f((-1)**i * a[i-1]) - a[i-1]
-    #    return a 
-
-#print(bisection(f,-1,1,100,0.001))
-#print(np.roots(np.array([1,-1,1,-1])))
