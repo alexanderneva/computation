@@ -72,8 +72,8 @@ gamma = 0.1
 lamb = 0.59
 r0 = s0*lamb / gamma
 #
-#def sir(t,x,y,z):
-#    return -lamb*x*y, lamb*x*y - gamma*y,gamma*y
+def sir(t,x,y,z):
+    return -lamb*x*y, lamb*x*y - gamma*y,gamma*y
 #
 #
 #
@@ -210,8 +210,8 @@ r0 = s0*lamb / gamma
 ## adding a recovered back into susceptible population at rate delta
 #
 delta = 0.1
-#def sir_f(t,x,y,z,delta,lamb,gamma):
-#    return -lamb*x*y+delta*x*z, lamb*x*y - gamma*y,gamma*y-delta*x*z
+def sir_f(t,x,y,z,delta,lamb,gamma):
+    return -lamb*x*y+delta*x*z, lamb*x*y - gamma*y,gamma*y-delta*x*z
 #
 #def taylor_system_6(f,delta,gamma,lamb,s,i,r,a,b,n):
 #    """Second Order Approximation for 3-dim ode with feedback"""
@@ -259,37 +259,37 @@ delta = 0.1
 #            plt.show()
 #            plt.close()
 #
-#def rk_system(f,s,i,r,a,b,n):
-#    t = a
-#    h = (b - a) / n
-#    points = np.zeros([4,n])
-#    for k in range(n):
-#        points[0,k] = t
-#        points[1,k] = s
-#        points[2,k] = i
-#        points[3,k] = r
-#        K1 = f(t,s,i,r)
-#        K2 = f(t+0.5*h,s+0.5*h*K1[0],i+0.5*h*K1[1],r+0.5*h*K1[2])
-#        K3 = f(t+0.5*h,s+0.5*h*K2[0],i+0.5*h*K2[1],r+0.5*h*K2[2])
-#        K4 = f(t+h, s + h*K3[0], i + h*K3[1], r + h*K3[2])
-#        t += h
-#        s += h / 6 *(K1[0]+2*K2[0]+2*K3[0]+K4[0])
-#        i += h / 6 *(K1[1]+2*K2[1]+2*K3[1]+K4[1])
-#        r += h / 6 *(K1[2]+2*K2[2]+2*K3[2]+K4[2])
-#    return points
-#
-#t,s,i,r = rk_system(sir,0.9,0.1,0,0,100,200)
-#
-#plt.plot(0.5*t,s, label='susceptible')
-#plt.plot(0.5*t,i, label='infected')
-#plt.plot(0.5*t,r, label='recovered')
-#plt.xlabel('Time')
-#plt.ylabel('Percentage')
-#plt.title(f"RK4 approx lambda {lamb} gamma {gamma}")
-#plt.legend()
-#plt.savefig('odes/sir_system_rk.jpg')
-#plt.show()
-#plt.close()
+def rk_system(f,s,i,r,a,b,n):
+    t = a
+    h = (b - a) / n
+    points = np.zeros([4,n])
+    for k in range(n):
+        points[0,k] = t
+        points[1,k] = s
+        points[2,k] = i
+        points[3,k] = r
+        K1 = f(t,s,i,r)
+        K2 = f(t+0.5*h,s+0.5*h*K1[0],i+0.5*h*K1[1],r+0.5*h*K1[2])
+        K3 = f(t+0.5*h,s+0.5*h*K2[0],i+0.5*h*K2[1],r+0.5*h*K2[2])
+        K4 = f(t+h, s + h*K3[0], i + h*K3[1], r + h*K3[2])
+        t += h
+        s += h / 6 *(K1[0]+2*K2[0]+2*K3[0]+K4[0])
+        i += h / 6 *(K1[1]+2*K2[1]+2*K3[1]+K4[1])
+        r += h / 6 *(K1[2]+2*K2[2]+2*K3[2]+K4[2])
+    return points
+
+t,s,i,r = rk_system(sir,0.9,0.1,0,0,100,200)
+
+plt.plot(0.5*t,s, label='susceptible')
+plt.plot(0.5*t,i, label='infected')
+plt.plot(0.5*t,r, label='recovered')
+plt.xlabel('Time')
+plt.ylabel('Percentage')
+plt.title(f"RK4 approx lambda {lamb} gamma {gamma}")
+plt.legend()
+plt.savefig('odes/sir_system_rk.jpg')
+plt.show()
+plt.close()
 #
 #### competition system
 ##def f_competition(t,x,y,a,b,m,n):

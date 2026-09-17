@@ -53,17 +53,17 @@ def eval_bisection(f,a,b,n_steps):
     
 
 def f(x):
-    return x**2-3
+    return x**2-x+1
 
 
-#a_0 = f(0)
-#print("a_0 ", a_0)
-#a_1 = f(-a_0)-a_0
-#print("a_1 ",a_1)
-#a_2 = f(a_1)-a_1
-#print("a_2 ", a_2)
-#a_3 = f(-a_2)-a_2
-#print("a_3 ", a_3)
+a_0 = f(0)
+print("a_0 ", a_0)
+a_1 = f(-a_0)-a_0
+print("a_1 ",a_1)
+a_2 = f(a_1)-a_1
+print("a_2 ", a_2)
+a_3 = f(-a_2)-a_2
+print("a_3 ", a_3)
 
 #eval_bisection(f,-0.5,5,100)
 
@@ -141,16 +141,22 @@ def newton_rd_example(system,iv,n_step):
     x = iv.copy()
     for i in range(n_step):
         points[:,i] += x
-        jac = jacobian(system, x)
+        jac = jacobian(system, x)  
         jac_matrix = jac.df
+        kappa = np.linalg.cond(jac_matrix)
+        if kappa > 1000: 
+            print("Ill conditioned system")
+            print(jac_matrix)
+            return i,0
         h = np.linalg.solve(jac_matrix,system(x))
         #print(h)
         x -= h
     return x, points
 
 #print(iv)
-iv, points = newton_rd_example(system,iv,15)
+iv, points = newton_rd_example(system,iv,10)
 
+print(iv)
 ax = plt.figure().add_subplot(projection='3d')
 ax.plot(points[:,0],points[:,1],points[:,2])
 ax.set_xlabel('t')
