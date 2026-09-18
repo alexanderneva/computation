@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from scipy.integrate import solve_ivp
+from scipy.differentiate import jacobian
 
 expr_0 = '2*y'
 expr_1 = '-y**2'
@@ -33,8 +34,10 @@ def f_7(t,y):
     return eval(expr_6)
 def f_8(t,y):
     return eval(expr_7)
-def f_9(t,x,y):
-    return eval(expr_7),eval(expr_4)
+def f_9(t,x_bar):
+    x = x_bar[0]
+    y = x_bar[1]
+    return eval(expr_7),eval(expr_6)
 
 funcs = [f_1,f_2,f_3,f_4,f_5,f_6,f_7,f_8]
 exprs = [expr_0,expr_1,expr_2,expr_3,expr_4,expr_5,expr_6,expr_7]
@@ -44,8 +47,40 @@ test = np.linspace(-10,10,25)
 I, J = np.meshgrid(test,test)
 #step = 0.1
 #fig, ax = plt.subplots(3,2)
-U,V = f_9(I,I,J)
+#U,V = f_9(I,I,J)
+#length = np.sqrt(U**2 + V**2)
+#U /= length
+#V /= length
+#
+
+sol = solve_ivp(f_9,np.array([0,2]),np.array([1,-1]),vectorized=True)
+t = sol.t
+y = sol.y
+
+plt.figure()
+U,V = f_9(I,[J,J])
+#q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
 length = np.sqrt(U**2 + V**2)
+q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
+plt.quiverkey(q, X=0.3,Y=1.1,U=2,label='Length of 2',labelpos='E')
+for points in np.array([[0.1,1.2],[-1.1,0.1],[-2,-11.2]]):
+    jac = jacobian(lambda x_bar : f_9(0,x_bar),points)
+    print(jac.df)
+    vals = np.linalg.eigvals(jac.df)
+    print("value", vals.astype(float))
+    sol = solve_ivp(f_9,np.array([0,5]),points)
+    sol_2 = solve_ivp(f_9,np.array([0,5]),vals.astype(float))
+    t = sol.t / np.linalg.norm(t)
+    y = sol.y / np.linalg.norm(y)
+    y_2 = sol_2.y 
+    y_2 /= np.linalg.norm(y_2)
+    plt.plot(y[0],y[1])
+    #plt.plot(y_2[0],y_2[1])
+plt.show()
+
+
+
+
 #print(U)
 #print(J)
 #plt.figure()
@@ -54,17 +89,17 @@ length = np.sqrt(U**2 + V**2)
 #plt.title(f" Field of x = {expr_7} and \n y = {expr_4}")
 #plt.savefig(f'fields/field{9}.jpg')
 #plt.show()
-for index,(func,expr) in enumerate(zip(funcs,exprs)):
-    plt.figure()
-    U = np.ones_like(I)
-    V = func(I,J)
-    #q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
-    length = np.sqrt(U**2 + V**2)
-    q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
-    plt.quiverkey(q, X=0.3,Y=1.1,U=2,label='Length of 2',labelpos='E')
-    #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
-    plt.title("Equation "+expr)
-    plt.savefig(f'fields/field{index}.jpg')
-
-#    plt.show()
+#for index,(func,expr) in enumerate(zip(funcs,exprs)):
+#    plt.figure()
+#    U = np.ones_like(I)
+#    V = func(I,J)
+#    #q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
+#    length = np.sqrt(U**2 + V**2)
+#    q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
+#    plt.quiverkey(q, X=0.3,Y=1.1,U=2,label='Length of 2',labelpos='E')
+#    #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
+#    plt.title("Equation "+expr)
+##    plt.savefig(f'fields/field{index}.jpg')
+#
+##    plt.show()
         

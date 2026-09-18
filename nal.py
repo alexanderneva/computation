@@ -314,4 +314,4 @@ print("Difference big_solve X - np.linalg X \n", np.round(X - np.linalg.solve(A,
 
 
 inverse = big_solve(A,np.eye(A.shape[0]))
-print(np.round(A@inverse,5))
+#print(np.round(A@inverse,5))
