@@ -62,47 +62,70 @@ def adaptive_simpson(f,a,b,epsilon,level,level_max):
     return simpson_result
 
 
-f = lambda x : np.cos(2*x) / np.exp(x)
-#result = adaptive_simpson(f,0,5/4*np.pi,0.5e-3,1,3)
-book_result, _ = integrate.quad(f,0,5/4*np.pi)
-#print(result,book_result)
+#f = lambda x : np.cos(2*x) / np.exp(x)
+##result = adaptive_simpson(f,0,5/4*np.pi,0.5e-3,1,3)
+#book_result, _ = integrate.quad(f,0,5/4*np.pi)
+##print(result,book_result)
+#
+#levels = np.arange(1,20)
+#re = np.zeros_like(levels)
+#print("Book result", book_result)
+#
+#for level in levels:
+#    result = adaptive_simpson(f,0,5/4*np.pi,0.5e-15,level,np.max(levels))
+#    print(result)
+#    re[level-1] = np.log(np.abs(book_result - result) / book_result)
+#
+#print(re)
+#plt.plot(re)
+#plt.title("Logarithmic RE")
+#plt.show()
 
-levels = np.arange(1,20)
-re = np.zeros_like(levels)
-print("Book result", book_result)
+sum_lower,sum_upper,epsilon = num_int(gauss,0,1,1000)
+print(sum_lower,sum_upper)
+print(f"Epsilon {epsilon}")
 
-for level in levels:
-    result = adaptive_simpson(f,0,5/4*np.pi,0.5e-15,level,np.max(levels))
-    print(result)
-    re[level-1] = np.log(np.abs(book_result - result) / book_result)
 
-print(re)
-plt.plot(re)
-plt.title("Logarithmic RE")
-plt.show()
+x = np.linspace(-1,1,100)
 
-#sum_lower,sum_upper,epsilon = num_int(gauss,0,1,1000)
-#print(sum_lower,sum_upper)
-#print(f"Epsilon {epsilon}")
-#
-#
-#x = np.linspace(-1,1,100)
-#
-#print(num_int(lambda x : gauss(x)))
-#
-#az = num_int(test,0,np.pi,1000)
-#print(f"Test for int e^cos(x) {np.mean(az)}")
-#
-#print(integrate.quad(test,0,np.pi))
-#
+print(num_int(lambda x : gauss(x)))
+
+az = num_int(test,0,np.pi,1000)
+print(f"Test for int e^cos(x) {np.mean(az)}")
+
+print(integrate.quad(test,0,np.pi))
+
 #fig, fig_1 = plt.subplots(3)
 #fig_1[0].plot(x,fr(x))
 #fig_1[0].set_title("Fresnel cosine integrand")
 #fig_1[1].plot(x,frs(x))
 #fig_1[1].set_title("Fresnel sine integrand")
 #fig_1[2].plot(x,moment(5,x))
-#
+#fig_1[2].set_title("x**m * np.exp(-x)")
+#plt.tight_layout()
 #plt.show()
 #print(0.5*math.sqrt(math.pi)*math.erf(1))
 #print(integrate.quad(f,0,1))
+
+
+e_1 = lambda alpha , theta : np.sqrt(1 - np.sin(alpha)*np.sin(theta))
+n = 150
+e_points=np.zeros(shape=(n,2))
+a = 0
+b = 2*np.pi
+max_level = 6
+x = np.linspace(0,2*np.pi,n)
+
+for i,point in enumerate(x):
+    val = adaptive_simpson(lambda theta : e_1(point,theta),0,2*np.pi,1e-3,4,max_level)
+    e_points[i,0] = i
+    e_points[i,1] = val
+
+plt.plot(e_points[:,0],e_points[:,1])
+plt.title(f"Adaptive simpson on np.sqrt(1 - np.sin(alpha)*np.sin(theta) \n on [{a} 2*pi] max_level {max_level}")
+plt.show()
+
+
+
+
 
