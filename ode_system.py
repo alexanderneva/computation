@@ -386,43 +386,101 @@ plt.close()
 
 
 
-def sir_r(t,x,y,z,delta,lamb,gamma):
-    """sir without delta*sr, just loss of immunity delta*r"""
-    return -lamb*x*y+delta*z, lamb*x*y - gamma*y
+#def sir_r(t,x,y,z,delta,lamb,gamma):
+#    """sir without delta*sr, just loss of immunity delta*r"""
+#    return -lamb*x*y+delta*z, lamb*x*y - gamma*y
+#
+#
+#def taylor_system_8(f,delta,gamma,lamb,s,i,r,a,b,n):
+#    """Second Order Approximation for 3-dim ode with feedback without interaction, treating R in terms of S and I"""
+#    t = a
+#    h = (b - a) / n
+#    points = np.zeros([4,n])
+#    for k in range(n):
+#        r = 1 - s - i
+#        points[0,k] = t
+#        points[1,k] = s
+#        points[2,k] = i
+#        points[3,k] = r
+#        s_p,i_p = f(t,s,i,r,delta,lamb,gamma)
+#        r_p = - s_p - i_p
+#        s_pp = -lamb*(i_p*s + s_p*i) + delta*r_p
+#        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
+#        t += h
+#        s += h*(s_p + 0.5*s_pp)
+#        i += h*(i_p + 0.5*i_pp)
+#
+#
+#
+#    return points
+#
+#
+#t,s,i,r = taylor_system_8(sir_r,delta,gamma,lamb,0.9,0.1,0,0,100,200)
+#plt.plot(0.5*t,s, label='susceptible')
+#plt.plot(0.5*t,i, label='infected')
+#plt.plot(0.5*t,r, label='recovered')
+#plt.xlabel('Time')
+#plt.ylabel('Percentage')
+#plt.title(f"Second order approx lambda {lamb} gamma {gamma} delta {delta}")
+#plt.legend()
+#plt.savefig(f'odes/sir_r_system_{delta}_{gamma}_{lamb}.jpg')
+#plt.show()
+#plt.close()
 
 
-def taylor_system_8(f,delta,gamma,lamb,s,i,r,a,b,n):
-    """Second Order Approximation for 3-dim ode with feedback without interaction, treating R in terms of S and I"""
-    t = a
-    h = (b - a) / n
+def sirs_b(t,s,i,r,b,d,K,delta,lamb,gamma):
+    """sirs with birth rate b and death rate d and population capacity K"""
+    n = s + i + r 
+    s_p = b*n - n**2 / K - lamb*s-d*s + delta*r
+    i_p = lamb*i*s - (gamma+d)*i
+    r_p = gamma*i - d*r - delta*r
+    return s_p, i_p, r_p
+
+
+
+def taylor_system_9(f,s,i,r,b,d,K,delta,gamma,lamb,t0,t1,n):
+    t = t0
+    h = (t1 - t0) / n
+
     points = np.zeros([4,n])
     for k in range(n):
-        r = 1 - s - i
         points[0,k] = t
         points[1,k] = s
         points[2,k] = i
         points[3,k] = r
-        s_p,i_p = f(t,s,i,r,delta,lamb,gamma)
-        r_p = - s_p - i_p
-        s_pp = -lamb*(i_p*s + s_p*i) + delta*r_p
-        i_pp = lamb*(i_p*s + s_p*i) - gamma*i_p
+        s_p,i_p,r_p = sirs_b(t,s,i,r,b,d,K,delta,lamb,gamma)
+        n = s + i + r
+        n_p = s_p + i_p + r_p
+        s_pp = n*n_p - 2*n*n_p / K - (lamb -d)*s_p + delta*r_p
+        i_pp = lamb*(i_p*s + s_p*i) - (gamma+d)*i_p
+        r_pp = gamma*i_p - (d+delta)*r_p
         t += h
         s += h*(s_p + 0.5*s_pp)
         i += h*(i_p + 0.5*i_pp)
-
-
-
+        r += h*(r_p + 0.5*i_pp)
     return points
 
 
-t,s,i,r = taylor_system_8(sir_r,delta,gamma,lamb,0.9,0.1,0,0,100,200)
-plt.plot(0.5*t,s, label='susceptible')
-plt.plot(0.5*t,i, label='infected')
-plt.plot(0.5*t,r, label='recovered')
-plt.xlabel('Time')
-plt.ylabel('Percentage')
-plt.title(f"Second order approx lambda {lamb} gamma {gamma} delta {delta}")
-plt.legend()
-plt.savefig(f'odes/sir_r_system_{delta}_{gamma}_{lamb}.jpg')
-plt.show()
-plt.close()
+
+deltas = np.linspace(0.25,0.75,3)
+gammas = np.linspace(0.25,0.75,3)
+lambdas = np.linspace(0.25,0.75,3)
+bs = np.linspace(0,1,4)
+K = 1.5
+for b in bs:
+    d = 1-b
+    for delta in deltas:
+        for gamma in gammas:
+            for lamb in lambdas:
+                t,s,i,r = taylor_system_9(sirs_b,0.9,0.1,0,b,d,K,delta,gamma,lamb,0,30,200)
+                plt.plot(0.15*t,s, label='susceptible')
+                plt.plot(0.15*t,i, label='infected')
+                plt.plot(0.15*t,r, label='recovered')
+                plt.xlabel('Time')
+                plt.ylabel('Percentage')
+                plt.title(f"Second order approx \n Logistic Growth lambda {lamb} gamma {gamma} delta {delta} \n birth rate {np.round(b,2)} and death rate {np.round(d,2)} capacity K {K}")
+                plt.legend()
+                plt.savefig(f'odes/sirs_b_system_{delta}_{gamma}_{lamb}.jpg')
+                plt.tight_layout()
+                plt.show()
+                plt.close()
