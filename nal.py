@@ -244,7 +244,7 @@ def doolittle(A):
 
 
 def l_solve(L,b):
-    n = np.size(b)
+    n = L.shape[0]
     z = np.zeros(n)
     z[0]=b[0]
     for i in range(1,n):
@@ -252,11 +252,11 @@ def l_solve(L,b):
     return z
 
 def u_solve(U,z):
-    n = np.size(b)
+    n = U.shape[0]
     x = np.zeros(n)
     x[n-1] = z[n-1] / U[n-1,n-1]
     for i in reversed(range(n)):
-        x[i] = (z[i] - u[i,i+1:]@x[i+1:]) / u[i,i]
+        x[i] = (z[i] - U[i,i+1:]@x[i+1:]) / U[i,i]
     return x
 
 
@@ -266,9 +266,9 @@ def lu_solve(A,b):
     x = u_solve(u,z)
     return x
 
-l,u = doolittle(A)
-print("Difference ", lu_solve(l,b)-np.linalg.solve(A,b))
-
+#l,u = doolittle(A)
+#print("Difference ", lu_solve(l,b)-np.linalg.solve(A,b))
+#
 def make_spd(n):
     M = np.random.randn(n,n)
     spd = M@M.T + n*np.eye(n)
@@ -292,6 +292,14 @@ print(np.round(A,2))
 l = cholesky(A)
 print(np.round(l,2))
 print(l@l.T-A)
+
+def cholesky_solve(A,b):
+    a = A.copy()
+    l = cholesky(a)
+    z = l_solve(l,b)
+    x = u_solve(l.T,z)
+    return x
+
 
 B = make_spd(n)
 
@@ -345,33 +353,45 @@ eig_vals = np.real(eig_vals)
 
 _,_,x = solve(eg,b)
 
+
+def hilbert(n):
+    """Generate an n x n Hilbert matrix"""
+    A = np.zeros(shape=(n,n))
+    for i in range(1,n+1):
+        for j in range(1,n+1):
+            A[i-1,j-1] = 1 / (i + j -1)
+    return A
+
 def iterative(A,b,error=0.1,step=0):
     n = A.shape[0]
-    omega = 1
+    omega = 1e-5
     #B = make_spd(n)
     #B =   (1  / np.diag(A) )
     B = omega*np.eye(n)
     Q = np.eye(n) - B@A
-    print("Spec radius", np.linalg.norm(Q,2))
     guess = np.random.normal(size=(n,))
     err = []
     err_0 = np.linalg.norm(guess-x)
     err.append(err_0)
     k = 0
     while err_0 > error:
-
-        B = omega*np.eye(n)
+        B = omega*l
         Q = np.eye(n) - B@A
-        if k % 10 == 0:
+        if k % 100 == 0 and k >0:
             print("Step ", k)
-
+            print("Spec radius of Q", np.linalg.norm(Q,2))
+            err_0 = np.linalg.norm(guess-x)
+            return guess,err
         guess = Q@guess + B@b
         err_0 = np.linalg.norm(guess-x)
-        k+=1
-        omega -= 0.5**k
+        k += 1
+        omega += 1e-5
     return guess,err
 
 
-guess, err = iterative(eg,b,error=1)
+guess, err = iterative(eg,b,error=0.75)
 print(guess, err[-1])
 print("Relative error ", err[-1]/np.linalg.norm(x))
+
+
+
