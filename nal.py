@@ -315,3 +315,18 @@ print("Difference big_solve X - np.linalg X \n", np.round(X - np.linalg.solve(A,
 
 inverse = big_solve(A,np.eye(A.shape[0]))
 #print(np.round(A@inverse,5))
+
+### Adams-Bashforth-Moulton
+
+def adams_bash(n):
+    """Return Adams-Bashforth-Moulton solution of size n"""
+    b = np.zeros(n)
+    A = np.zeros(shape=(n,n))
+    for i in range(1,n+1):
+        b[i-1]= 1 / i
+        for j in range(n):
+            A[i-1,j] += (1-j)**(i-1)
+
+
+    A_r,b_r,x = solve(A,b)
+    return x

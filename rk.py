@@ -107,28 +107,29 @@ def rk45_adaptive(f,t=0.,x=0.,h=0.,tb=0.,itmax=0.,emax=0.,emin=0.,hmin=0.,hmax=0
 
     return t,x,epsilon,(times,xs,errors)
 
-itmax = 1000
-iflag = 0
-emax = 1e-5
-emin = 1e-8
-hmin = 1e-6
-hmax = 1
-t = 0
-x = 0
-h = 0.01
-tb = 10
+#itmax = 1000
+#iflag = 0
+#emax = 1e-5
+#emin = 1e-8
+#hmin = 1e-6
+#hmax = 1
+#t = 0
+#x = 0
+#h = 0.01
+#tb = 10
+expr = '3 + 5*np.sin(t) + 0.2*x'
 def f1(t,x):
     return 3 + 5*np.sin(t) + 0.2*x
-t,x,epsilon,(times,xs,errors) = rk45_adaptive(f1,t,x,h,tb,itmax,emax,emin,hmin,hmax,iflag)
-
-print(epsilon,errors.size,times.size)
-
-fig, (ax1,ax2) = plt.subplots(1,2)
-ax1.plot(times,xs)
-ax1.set_title("x")
-ax2.plot(times,errors)
-ax2.set_title("error")
-plt.show()
+#t,x,epsilon,(times,xs,errors) = rk45_adaptive(f1,t,x,h,tb,itmax,emax,emin,hmin,hmax,iflag)
+#
+#print(epsilon,errors.size,times.size)
+#
+#fig, (ax1,ax2) = plt.subplots(1,2)
+#ax1.plot(times,xs)
+#ax1.set_title("x")
+#ax2.plot(times,errors)
+#ax2.set_title("error")
+#plt.show()
 
 
 #t, x, epsilon = runrk(f,2,1,1.625,72)
@@ -139,3 +140,26 @@ plt.show()
 #ax2.plot(t,epsilon)
 #ax2.set_title("Error")
 #plt.show()
+
+from nal import adams_bash
+
+def second_adam(f,x_0,x_1,t_0,t_1,n):
+    c = adams_bash(2)
+    print(c.shape)
+    h = (t_1 - t_0) / n
+    points = np.zeros(shape=(2,n))
+    for i in range(n):
+        points[0,i] = i*h
+        points[1,i] = x_0
+        f_0 = f(x_0,t_0)
+        f_1 = f(x_1,t_1)
+        f_c = np.array([f_0,f_1])
+        x_tilde = x_1 + h * f_c @ c
+        x_1 = x_tilde
+        x_0 = x_1
+    return points
+
+t,x = second_adam(f1,0,2,0,1,1000)
+plt.plot(t,x)
+plt.title("adams-bashforth on "+expr)
+plt.show()
