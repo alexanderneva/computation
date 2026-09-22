@@ -330,3 +330,48 @@ def adams_bash(n):
 
     A_r,b_r,x = solve(A,b)
     return x
+
+
+eg = np.array([
+    [1, 2, -1],
+    [2, 5,  0],
+    [3, 2, -1],
+])
+
+b = np.array([2,2,4])
+
+eig_vals,eig_vects = np.linalg.eig(eg)
+eig_vals = np.real(eig_vals)
+
+_,_,x = solve(eg,b)
+
+def iterative(A,b,error=0.1,step=0):
+    n = A.shape[0]
+    omega = 1
+    #B = make_spd(n)
+    #B =   (1  / np.diag(A) )
+    B = omega*np.eye(n)
+    Q = np.eye(n) - B@A
+    print("Spec radius", np.linalg.norm(Q,2))
+    guess = np.random.normal(size=(n,))
+    err = []
+    err_0 = np.linalg.norm(guess-x)
+    err.append(err_0)
+    k = 0
+    while err_0 > error:
+
+        B = omega*np.eye(n)
+        Q = np.eye(n) - B@A
+        if k % 10 == 0:
+            print("Step ", k)
+
+        guess = Q@guess + B@b
+        err_0 = np.linalg.norm(guess-x)
+        k+=1
+        omega -= 0.5**k
+    return guess,err
+
+
+guess, err = iterative(eg,b,error=1)
+print(guess, err[-1])
+print("Relative error ", err[-1]/np.linalg.norm(x))
