@@ -259,37 +259,37 @@ def sir_f(t,x,y,z,delta,lamb,gamma):
 #            plt.show()
 #            plt.close()
 #
-def rk_system(f,s,i,r,a,b,n):
-    t = a
-    h = (b - a) / n
-    points = np.zeros([4,n])
-    for k in range(n):
-        points[0,k] = t
-        points[1,k] = s
-        points[2,k] = i
-        points[3,k] = r
-        K1 = f(t,s,i,r)
-        K2 = f(t+0.5*h,s+0.5*h*K1[0],i+0.5*h*K1[1],r+0.5*h*K1[2])
-        K3 = f(t+0.5*h,s+0.5*h*K2[0],i+0.5*h*K2[1],r+0.5*h*K2[2])
-        K4 = f(t+h, s + h*K3[0], i + h*K3[1], r + h*K3[2])
-        t += h
-        s += h / 6 *(K1[0]+2*K2[0]+2*K3[0]+K4[0])
-        i += h / 6 *(K1[1]+2*K2[1]+2*K3[1]+K4[1])
-        r += h / 6 *(K1[2]+2*K2[2]+2*K3[2]+K4[2])
-    return points
-
-t,s,i,r = rk_system(sir,0.9,0.1,0,0,100,200)
-
-plt.plot(0.5*t,s, label='susceptible')
-plt.plot(0.5*t,i, label='infected')
-plt.plot(0.5*t,r, label='recovered')
-plt.xlabel('Time')
-plt.ylabel('Percentage')
-plt.title(f"RK4 approx lambda {lamb} gamma {gamma}")
-plt.legend()
-plt.savefig('odes/sir_system_rk.jpg')
-plt.show()
-plt.close()
+#def rk_system(f,s,i,r,a,b,n):
+#    t = a
+#    h = (b - a) / n
+#    points = np.zeros([4,n])
+#    for k in range(n):
+#        points[0,k] = t
+#        points[1,k] = s
+#        points[2,k] = i
+#        points[3,k] = r
+#        K1 = f(t,s,i,r)
+#        K2 = f(t+0.5*h,s+0.5*h*K1[0],i+0.5*h*K1[1],r+0.5*h*K1[2])
+#        K3 = f(t+0.5*h,s+0.5*h*K2[0],i+0.5*h*K2[1],r+0.5*h*K2[2])
+#        K4 = f(t+h, s + h*K3[0], i + h*K3[1], r + h*K3[2])
+#        t += h
+#        s += h / 6 *(K1[0]+2*K2[0]+2*K3[0]+K4[0])
+#        i += h / 6 *(K1[1]+2*K2[1]+2*K3[1]+K4[1])
+#        r += h / 6 *(K1[2]+2*K2[2]+2*K3[2]+K4[2])
+#    return points
+#
+#t,s,i,r = rk_system(sir,0.9,0.1,0,0,100,200)
+#
+#plt.plot(0.5*t,s, label='susceptible')
+#plt.plot(0.5*t,i, label='infected')
+#plt.plot(0.5*t,r, label='recovered')
+#plt.xlabel('Time')
+#plt.ylabel('Percentage')
+#plt.title(f"RK4 approx lambda {lamb} gamma {gamma}")
+#plt.legend()
+#plt.savefig('odes/sir_system_rk.jpg')
+#plt.show()
+#plt.close()
 #
 #### competition system
 ##def f_competition(t,x,y,a,b,m,n):
@@ -466,21 +466,61 @@ deltas = np.linspace(0.25,0.75,3)
 gammas = np.linspace(0.25,0.75,3)
 lambdas = np.linspace(0.25,0.75,3)
 bs = np.linspace(0,1,4)
+#K = 1.5
+#for b in bs:
+#    d = 1-b
+#    for delta in deltas:
+#        for gamma in gammas:
+#            for lamb in lambdas:
+#                t,s,i,r = taylor_system_9(sirs_b,0.9,0.1,0,b,d,K,delta,gamma,lamb,0,30,200)
+#                plt.plot(0.15*t,s, label='susceptible')
+#                plt.plot(0.15*t,i, label='infected')
+#                plt.plot(0.15*t,r, label='recovered')
+#                plt.xlabel('Time')
+#                plt.ylabel('Percentage')
+#                plt.title(f"Second order approx \n Logistic Growth lambda {lamb} gamma {gamma} delta {delta} \n birth rate {np.round(b,2)} and death rate {np.round(d,2)} capacity K {K}")
+#                plt.legend()
+#                plt.savefig(f'odes/sirs_b_system_{delta}_{gamma}_{lamb}.jpg')
+#                plt.tight_layout()
+#                plt.show()
+#                plt.close()
+#
+#b,d,K,delta,gamma,lamb,0,30,200)
+
+
+from rk import rk_system
+
+def sirs_bv(b,d,K,delta,lamb,gamma,t,x):
+    """vectorized sirs with birth rate b and death rate d and population capacity K"""
+    n = np.sum(x)
+    s = x[0]
+    i = x[1]
+    r = x[2]
+    s_p = b*n - n**2 / K - lamb*s-d*s + delta*r
+    i_p = lamb*i*s - (gamma+d)*i
+    r_p = gamma*i - d*r - delta*r
+    return np.array([s_p, i_p, r_p])
+
 K = 1.5
 for b in bs:
     d = 1-b
     for delta in deltas:
         for gamma in gammas:
             for lamb in lambdas:
-                t,s,i,r = taylor_system_9(sirs_b,0.9,0.1,0,b,d,K,delta,gamma,lamb,0,30,200)
-                plt.plot(0.15*t,s, label='susceptible')
-                plt.plot(0.15*t,i, label='infected')
-                plt.plot(0.15*t,r, label='recovered')
+                points = rk_system(lambda t,x :sirs_bv(b,d,K,delta,lamb,gamma,t,x),np.array([0.9,0.1,0]),0.,10.,100)
+                t = np.linspace(0,10,100)
+                s = points[:,0]
+                i = points[:,1]
+                r = points[:,2]
+                plt.plot(t,s, label='susceptible')
+                plt.plot(t,i, label='infected')
+                plt.plot(t,r, label='recovered')
                 plt.xlabel('Time')
                 plt.ylabel('Percentage')
-                plt.title(f"Second order approx \n Logistic Growth lambda {lamb} gamma {gamma} delta {delta} \n birth rate {np.round(b,2)} and death rate {np.round(d,2)} capacity K {K}")
+                plt.title(f"RK4 approx \n Logistic Growth lambda {lamb} gamma {gamma} delta {delta} \n birth rate {np.round(b,2)} and death rate {np.round(d,2)} capacity K {K}")
                 plt.legend()
-                plt.savefig(f'odes/sirs_b_system_{delta}_{gamma}_{lamb}.jpg')
-                plt.tight_layout()
-                plt.show()
+                plt.savefig(f'odes/sirs_bvrk4_system_{delta}_{gamma}_{lamb}.jpg')
+#                plt.tight_layout()
+#                plt.show()
                 plt.close()
+                    

@@ -107,24 +107,24 @@ def lu_with_forward(x):
             l[i,k] = (a[i,k] - l[i,:k] @ u[:k,k]) / u[k,k]
     return l,u
 
-print(f'A {eg}')
+#print(f'A {eg}')
 
 
 l,u = lu(eg)
 
 
-print(f' L \n {l}')
-print(f' U \n {u}')
-print(f' L@U \n {np.round(l@u,3)}')
-print(f' A - L@U \n {np.round(eg - l@u)}')
-
+#print(f' L \n {l}')
+#print(f' U \n {u}')
+#print(f' L@U \n {np.round(l@u,3)}')
+#print(f' A - L@U \n {np.round(eg - l@u)}')
+#
 l,u = lu_with_forward(eg)
 
 
-print(f' L \n {l}')
-print(f' U \n {u}')
-print(f' L@U \n {np.round(l@u,3)}')
-print(f' A - L@U \n {np.round(eg - l@u)}')
+#print(f' L \n {l}')
+#print(f' U \n {u}')
+#print(f' L@U \n {np.round(l@u,3)}')
+#print(f' A - L@U \n {np.round(eg - l@u)}')
 
 def solve(a,b):
     # perform gaussian elimination and backsubstitutionproviding the reduced matrix a_r,b_r and solution vector x 
@@ -214,8 +214,8 @@ b = np.array([1,0,2])
 ans = tri(A,b)
 test = np.linalg.solve(A,b)
 
-print(f"Answer {ans}")
-print(f"abs error {np.abs(ans-test)}")
+#print(f"Answer {ans}")
+#print(f"abs error {np.abs(ans-test)}")
 
 
 #########
@@ -224,11 +224,11 @@ import scipy as sci
 l, u = lu(A)
 l_test,u_test = sci.linalg.lu(A, permute_l=True)
 
-print(l_test@u_test)
-print(np.abs(l-l_test))
-print(np.abs(u-u_test))
-print(l@u)
-
+#print(l_test@u_test)
+#print(np.abs(l-l_test))
+#print(np.abs(u-u_test))
+#print(l@u)
+#
 def doolittle(A):
     a = A.copy()
     n,_ = np.shape(A)
@@ -288,10 +288,10 @@ def cholesky(A):
             l[i,k] = (a[i,k] - l[i,:k]@l[k,:k]) / l[k,k]
     return l
 
-print(np.round(A,2))
-l = cholesky(A)
-print(np.round(l,2))
-print(l@l.T-A)
+#print(np.round(A,2))
+#l = cholesky(A)
+#print(np.round(l,2))
+#print(l@l.T-A)
 
 def cholesky_solve(A,b):
     a = A.copy()
@@ -313,16 +313,16 @@ def big_solve(A,B):
         x[:,i]+= x_i
     return x
 
-X = big_solve(A,B)
-print("B",B)
-print("X",X)
-print("AX",A@X)
-
-print("Difference big_solve X - np.linalg X \n", np.round(X - np.linalg.solve(A,B),5))
-
-
-inverse = big_solve(A,np.eye(A.shape[0]))
-#print(np.round(A@inverse,5))
+#X = big_solve(A,B)
+#print("B",B)
+#print("X",X)
+#print("AX",A@X)
+#
+#print("Difference big_solve X - np.linalg X \n", np.round(X - np.linalg.solve(A,B),5))
+#
+#
+#inverse = big_solve(A,np.eye(A.shape[0]))
+##print(np.round(A@inverse,5))
 
 ### Adams-Bashforth-Moulton
 
@@ -389,9 +389,9 @@ def iterative(A,b,error=0.1,step=0):
     return guess,err
 
 
-guess, err = iterative(eg,b,error=0.75)
-print(guess, err[-1])
-print("Relative error ", err[-1]/np.linalg.norm(x))
-
+#guess, err = iterative(eg,b,error=0.75)
+#print(guess, err[-1])
+#print("Relative error ", err[-1]/np.linalg.norm(x))
+#
 
 

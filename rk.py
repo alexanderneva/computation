@@ -1,6 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as plt
-
+#
 
 def f(t,x):
     return 2 + (x-t-1)**2
@@ -107,6 +107,25 @@ def rk45_adaptive(f,t=0.,x=0.,h=0.,tb=0.,itmax=0.,emax=0.,emin=0.,hmin=0.,hmax=0
 
     return t,x,epsilon,(times,xs,errors)
 
+def rk_system(f,x,a,b,n):
+    t = a
+    h = (b - a) / n
+    points = []
+    for k in range(n):
+        x_0 = x.copy()
+        points.append(x_0)
+        K1 = f(t,x)
+        y_1 = x+ 0.5*h*K1
+        K2 = f(t+0.5*h,y_1)
+        y_2 = x+ 0.5*h*K2 
+        K3 = f(t+0.5*h, y_2)
+        y_3 = x + h*K3
+        K4 = f(t+h, y_3)
+        t += h
+        x += 1/6 * h*(K1 + 2*K2 + 2*K3 + K4)
+    points = np.array(points)
+    return points
+
 #itmax = 1000
 #iflag = 0
 #emax = 1e-5
@@ -117,13 +136,22 @@ def rk45_adaptive(f,t=0.,x=0.,h=0.,tb=0.,itmax=0.,emax=0.,emin=0.,hmin=0.,hmax=0
 #x = 0
 #h = 0.01
 #tb = 10
-expr = '3 + 5*np.sin(t) + 0.2*x'
-def f1(t,x):
-    return 3 + 5*np.sin(t) + 0.2*x
-#t,x,epsilon,(times,xs,errors) = rk45_adaptive(f1,t,x,h,tb,itmax,emax,emin,hmin,hmax,iflag)
+#expr = '3 + 5*np.sin(t) + 0.2*x'
+#def f1(t,x):
+#    return 3 + 5*np.sin(t) + 0.2*x
 #
+#def f2(t,x):
+#    return np.array([3 + 5*np.sin(t), 0.2*x[0]+0.1*x[1],t])
+#points = rk_system(f2,np.array([0.,1.,0.]),0,50,1000)
+#
+#print(points.shape)
+#ax = plt.figure().add_subplot(projection='3d')
+#ax.plot(points[:,0],points[:,1],points[:,2])
+#plt.show()
+##t,x,epsilon,(times,xs,errors) = rk45_adaptive(f1,t,x,h,tb,itmax,emax,emin,hmin,hmax,iflag)
+
 #print(epsilon,errors.size,times.size)
-#
+
 #fig, (ax1,ax2) = plt.subplots(1,2)
 #ax1.plot(times,xs)
 #ax1.set_title("x")
@@ -141,25 +169,34 @@ def f1(t,x):
 #ax2.set_title("Error")
 #plt.show()
 
-from nal import adams_bash
-
-def second_adam(f,x_0,x_1,t_0,t_1,n):
-    c = adams_bash(2)
-    print(c.shape)
-    h = (t_1 - t_0) / n
-    points = np.zeros(shape=(2,n))
-    for i in range(n):
-        points[0,i] = i*h
-        points[1,i] = x_0
-        f_0 = f(x_0,t_0)
-        f_1 = f(x_1,t_1)
-        f_c = np.array([f_0,f_1])
-        x_tilde = x_1 + h * f_c @ c
-        x_1 = x_tilde
-        x_0 = x_1
-    return points
-
-t,x = second_adam(f1,0,2,0,1,1000)
-plt.plot(t,x)
-plt.title("adams-bashforth on "+expr)
-plt.show()
+#from nal import adams_bash
+#
+#def second_adam(f,x_0,x_1,t_0,t_1,n):
+#    eps = 0.001
+#    c = adams_bash(2)
+#    print(c)
+#    h = (t_1 - t_0) / n
+#    points = np.zeros(shape=(2,n))
+#    for i in range(n):
+#        points[0,i] = i*h
+#        points[1,i] = x_0
+#        f_0 = f(t_0,x_0)
+#        f_1 = f(t_1,x_1)
+#        f_c = np.array([-f_0,3*f_1])
+#        x_tilde = x_1 + h * (f_c @ c)
+#        t_2 = t_1+h
+#        f_1_t = f(t_2,x_tilde)
+#        f_c_t = np.array([f_1_t,f_1])
+#        x_t = x_1 + h * f_c_t @ c
+#        if np.abs(x_t-x_tilde) <= eps:
+#            print("done")
+#            return points
+#        x_0 = x_1
+#        x_1 = x_t
+#    return points
+#
+#t,x = second_adam(f1,f1(0,0),f1(2/100,0),0,10,100)
+#
+#plt.plot(t,x)
+#plt.title("Adams bash for "+expr)
+#plt.show()
