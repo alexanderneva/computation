@@ -23,7 +23,5 @@ def taylor(f,x,a,b,n):
 
 
 points = taylor(f,-4,1,2,100)
-print(points[1])
-print(points[0])
 plt.plot(points[1],points[0])
 plt.show()

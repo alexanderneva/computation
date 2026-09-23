@@ -395,3 +395,17 @@ def iterative(A,b,error=0.1,step=0):
 #
 
 
+def a_hat(a):
+    """Return the skew-symmetric matrix for vector a in a x b = a_hat@b"""
+    n = a.shape[0]
+    A = np.zeros((n,n))
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                pass
+            elif i > j:
+                A[i,j]=(-1)**(i+j+1)*a[-(i+j) % n]
+                A[j,i]= -A[i,j]
+    return A
+
+
