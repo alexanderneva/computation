@@ -3,7 +3,7 @@ import numpy as np
 
 n = 3
 m = 3
-X = np.random.uniform(size=(n,n))
+#X = np.random.uniform(size=(n,n))
 #b = np.random.normal(size=n)
 
 eg = np.array([
@@ -28,16 +28,15 @@ def forward_sub(A):
 
 
 def gaussian_elim(A,b):
-    a = np.copy(A)
+    a = A.copy()
     n,_ = np.shape(a)
     bb = b.copy()
-    l = np.zeros_like(a)
     for k in range(n):
         for i in range(k+1,n): 
-            l[i-1,k] += a[i,k] / a[k,k]
+            x_mult = a[i,k] / a[k,k]
             for j in range(k,n):
-                a[i,j] -= l[i-1,k]*a[k,j]
-            bb[i] -= l[i-1,k]*bb[k]
+                a[i,j] -= x_mult*a[k,j]
+            bb[i] -= x_mult*bb[k]
     return a,bb
 
 def backsub(A,b):
@@ -45,24 +44,31 @@ def backsub(A,b):
     n = np.size(b)
     x = np.zeros(n)
     x[n-1] = b[n-1] / a[n-1,n-1]
-    for i in reversed(range(n)):
+    for i in range(n-2,-1,-1):
         sum = b[i]
         for j in range(i+1,n):
             sum -= a[i,j]*x[j]
-        x[i] = sum/a[i,i]
+        x[i] += sum/a[i,i]
     return x
 
 
-a_r,b_r = gaussian_elim(eg,b)
-np.round(a_r,2)
-x = backsub(a_r,b_r)
 
+#a_r,b_r = gaussian_elim(eg,b)
+#print(np.round(a_r,2))
+#x = backsub(a_r,b_r)
 #print("A ", eg)
 #print(f"a@x {eg@x}")
 #print(f"a_r {a_r}")
 #print(f"b {b}")
 #print(f"b_r {b_r}")
 #print(f"x {x}")
+
+
+def solve(a,b):
+    # perform gaussian elimination and backsubstitutionproviding the reduced matrix a_r,b_r and solution vector x 
+    a_r,b_r = gaussian_elim(a,b)
+    x = backsub(a_r,b_r)
+    return a_r,b_r,x
 
 
 def gaussian_elim_mult(A,b):
@@ -126,11 +132,6 @@ l,u = lu_with_forward(eg)
 #print(f' L@U \n {np.round(l@u,3)}')
 #print(f' A - L@U \n {np.round(eg - l@u)}')
 
-def solve(a,b):
-    # perform gaussian elimination and backsubstitutionproviding the reduced matrix a_r,b_r and solution vector x 
-    a_r,b_r = gaussian_elim(a,b)
-    x = backsub(a_r,b_r)
-    return a_r,b_r,x
 
 #a = np.array([
 #    [0.0001,1],
@@ -211,18 +212,17 @@ A = np.array([
 
 b = np.array([1,0,2])
 
-ans = tri(A,b)
-test = np.linalg.solve(A,b)
+#ans = tri(A,b)
+#test = np.linalg.solve(A,b)
+#print(test)
 
-#print(f"Answer {ans}")
-#print(f"abs error {np.abs(ans-test)}")
 
 
 #########
 
-import scipy as sci
-l, u = lu(A)
-l_test,u_test = sci.linalg.lu(A, permute_l=True)
+#import scipy as sci
+##l, u = lu(A)
+#l_test,u_test = sci.linalg.lu(A, permute_l=True)
 
 #print(l_test@u_test)
 #print(np.abs(l-l_test))
@@ -346,12 +346,23 @@ eg = np.array([
     [3, 2, -1],
 ])
 
-b = np.array([2,2,4])
+b = np.array([2,2,4],dtype=np.float64)
 
-eig_vals,eig_vects = np.linalg.eig(eg)
-eig_vals = np.real(eig_vals)
+eg_2 = np.array([
+    [1,-1,0],
+    [-1,1,-1],
+    [0,-1,1],
+],dtype=np.float64)
 
-_,_,x = solve(eg,b)
+print(np.linalg.solve(eg_2,b))
+eig_vals = np.linalg.eigvals(eg_2)
+#print(eig_vals)
+print(np.linalg.det(eg_2))
+_,_,x = solve(eg_2,b)
+print("x ", x)
+print("A@x ", eg_2@x)
+print(b)
+
 
 
 def hilbert(n):
@@ -367,33 +378,41 @@ def iterative(A,b,error=0.1,step=0):
     omega = 1e-5
     #B = make_spd(n)
     #B =   (1  / np.diag(A) )
-    B = omega*np.eye(n)
+    #B = omega*np.eye(n)
+    B = np.eye(n)
     Q = np.eye(n) - B@A
     guess = np.random.normal(size=(n,))
     err = []
-    err_0 = np.linalg.norm(guess-x)
+    err_0 = np.linalg.norm(A@guess - b)
     err.append(err_0)
     k = 0
     while err_0 > error:
-        B = omega*l
-        Q = np.eye(n) - B@A
+        prev = guess.copy()
+        guess = Q@prev + B@b
+        _,_,new_guess = lu_solve(Q,guess)
+        err_0 = np.linalg.norm(new_guess-x)
+        err.append(err_0)
         if k % 100 == 0 and k >0:
             print("Step ", k)
             print("Spec radius of Q", np.linalg.norm(Q,2))
             err_0 = np.linalg.norm(guess-x)
             return guess,err
-        guess = Q@guess + B@b
-        err_0 = np.linalg.norm(guess-x)
+        if np.linalg.norm(prev-guess) <= error:
+            return guess,err
         k += 1
         omega += 1e-5
     return guess,err
 
-
-#guess, err = iterative(eg,b,error=0.75)
+#
+#
+#guess, err = iterative(eg_2,b,error=0.01)
 #print(guess, err[-1])
 #print("Relative error ", err[-1]/np.linalg.norm(x))
+#import matplotlib.pyplot as plt
 #
-
+#plt.plot(err)
+#plt.show()
+#print(eg@b)
 
 def a_hat(a):
     """Return the skew-symmetric matrix for vector a in a x b = a_hat@b"""
