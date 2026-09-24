@@ -32,6 +32,11 @@ def gaussian_elim(A,b):
     n,_ = np.shape(a)
     bb = b.copy()
     for k in range(n):
+        if a[k,k] ==0:
+            print("Row swap ",k,k+1)
+            swapr = a[k,:].copy()
+            a[k,:]=a[k+1,:]
+            a[k+1,:]=swapr
         for i in range(k+1,n): 
             x_mult = a[i,k] / a[k,k]
             for j in range(k,n):
@@ -354,14 +359,15 @@ eg_2 = np.array([
     [0,-1,1],
 ],dtype=np.float64)
 
-print(np.linalg.solve(eg_2,b))
-eig_vals = np.linalg.eigvals(eg_2)
-#print(eig_vals)
-print(np.linalg.det(eg_2))
+##print(np.linalg.solve(eg_2,b))
+#eig_vals = np.linalg.eigvals(eg_2)
+##print(eig_vals)
+#print(np.linalg.det(eg_2))
 _,_,x = solve(eg_2,b)
-print("x ", x)
-print("A@x ", eg_2@x)
-print(b)
+x_ = np.linalg.solve(eg_2,b)
+#print("x ", x)
+#print("A@x ", eg_2@x)
+#print(b)
 
 
 
@@ -373,46 +379,6 @@ def hilbert(n):
             A[i-1,j-1] = 1 / (i + j -1)
     return A
 
-def iterative(A,b,error=0.1,step=0):
-    n = A.shape[0]
-    omega = 1e-5
-    #B = make_spd(n)
-    #B =   (1  / np.diag(A) )
-    #B = omega*np.eye(n)
-    B = np.eye(n)
-    Q = np.eye(n) - B@A
-    guess = np.random.normal(size=(n,))
-    err = []
-    err_0 = np.linalg.norm(A@guess - b)
-    err.append(err_0)
-    k = 0
-    while err_0 > error:
-        prev = guess.copy()
-        guess = Q@prev + B@b
-        _,_,new_guess = lu_solve(Q,guess)
-        err_0 = np.linalg.norm(new_guess-x)
-        err.append(err_0)
-        if k % 100 == 0 and k >0:
-            print("Step ", k)
-            print("Spec radius of Q", np.linalg.norm(Q,2))
-            err_0 = np.linalg.norm(guess-x)
-            return guess,err
-        if np.linalg.norm(prev-guess) <= error:
-            return guess,err
-        k += 1
-        omega += 1e-5
-    return guess,err
-
-#
-#
-#guess, err = iterative(eg_2,b,error=0.01)
-#print(guess, err[-1])
-#print("Relative error ", err[-1]/np.linalg.norm(x))
-#import matplotlib.pyplot as plt
-#
-#plt.plot(err)
-#plt.show()
-#print(eg@b)
 
 def a_hat(a):
     """Return the skew-symmetric matrix for vector a in a x b = a_hat@b"""
@@ -426,5 +392,70 @@ def a_hat(a):
                 A[i,j]=(-1)**(i+j+1)*a[-(i+j) % n]
                 A[j,i]= -A[i,j]
     return A
+
+def lowup(A):
+    """Return the lower triangular and upper part of matrix A, and the diagonal"""
+    l = np.zeros_like(A)
+    u = np.zeros_like(A)
+    a = A.copy()
+    n = np.shape(l)[0]
+    for i in range(n):
+        for j in range(n):
+            if i > j:
+                l[i,j]+= A[i,j]
+            elif i < j:
+                u[i,j]+= A[i,j]
+            else:
+                pass
+    d = a - u - l
+    return l,d,u
+
+
+def iterative(A,b,error=0.1,step=1000):
+    n = A.shape[0]
+    omega = 1e-2
+    #B = make_spd(n)
+    #B =   (1  / np.diag(A) )
+    a_l,d,a_u = lowup(A)
+    print(d)
+    B = omega * np.linalg.inv(d) @(a_l+a_u)
+    #B = np.eye(n)
+    Q = np.eye(n) - B@A
+    guess = np.random.normal(size=(n,))
+    err = []
+    err_x = []
+    err_0 = np.linalg.norm(A@guess - b)
+    err.append(err_0)
+    err_x.append(np.linalg.norm(x-guess))
+    k = 0
+    while err_0 > error:
+        prev = guess.copy()
+        guess = Q@prev + B@b
+        err_0 = np.linalg.norm(guess-prev)
+        err_x.append(np.linalg.norm(x-guess))
+        err.append(err_0)
+        if k > step:
+            print("Step ", k)
+            print("Spec radius of Q", np.linalg.norm(Q,2))
+            err_0 = np.linalg.norm(A@(guess-prev))
+            return guess,err,err_x
+        if np.linalg.norm(prev-guess) <= error:
+            return guess,err,err_x
+        k += 1
+        omega -= 1e-5
+    return guess,err,err_x
+
+#
+#
+guess, err,err_x = iterative(eg_2,b,error=0.0001)
+print(guess, err[-1],err_x[-1])
+print("Relative error ", err_x[-1]/np.linalg.norm(x))
+print(eg_2@x)
+import matplotlib.pyplot as plt
+
+plt.plot(err)
+plt.plot(err_x)
+plt.show()
+print(eg_2@guess)
 
 
