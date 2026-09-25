@@ -147,11 +147,12 @@ for b in bs:
                 v = points[:,1]
                 w = points[:,2]
                 ax.quiver(test,test,test,u,v,w ,length=0.1,normalize=True)
+                ax.set_aspect('equal')
 ax.scatter(y[0,:],y[1,:],y[2,:])
 ax.set_xlabel("s")
 ax.set_ylabel("i")
 ax.set_zlabel("r")
-ax.set_zlim([np.min(y[2,:]),np.max(y[2,:])])
+#ax.set_zlim([np.min(y[2,:]),np.max(y[2,:])])
 plt.tight_layout()
 plt.show()
 #ax.quiverkey(q, X=0.3,Y=1.1,U=1,label='Length of 2',labelpos='E')

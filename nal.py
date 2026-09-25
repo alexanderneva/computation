@@ -393,6 +393,22 @@ def a_hat(a):
                 A[j,i]= -A[i,j]
     return A
 
+def cofactor(A):
+    """Returns the cofactor matrix of A"""
+    n = A.shape[0]
+    C = np.zeros_like(A)
+    for i in range(n):
+        a = A.copy()
+        for j in range(n):
+            a = np.split(a,i)
+
+            print(a)
+            #a = np.delete(a,j,axis=1)
+            #C[i,j] += np.linalg.det(a)
+    return C
+
+#print(cofactor(eg_2))
+
 def lowup(A):
     """Return the lower triangular and upper part of matrix A, and the diagonal"""
     l = np.zeros_like(A)
@@ -601,4 +617,8 @@ def iteration_test_suite():
         plt.savefig("iterative_results/"+method+".jpg")
         plt.close()
 
-iteration_test_suite()
+#iteration_test_suite()
+
+
+
+

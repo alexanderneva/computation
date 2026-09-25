@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import itertools
 from expression_generator import make_expression_list
 from scipy.differentiate import jacobian
-from scipy.integrate import LSODA
+from scipy.integrate import solve_ivp
 
 def evaluator(t,x_bar,expr_1,expr_2):
     x = x_bar[0]
@@ -15,27 +15,29 @@ n_op = 3
 exprs = make_expression_list(n_expr,n_op)
 exprs_pairs = itertools.combinations(exprs,2)
 
-
-test = np.linspace(-10,10,25)
+test = np.linspace(-5,10,25)
 I, J = np.meshgrid(test,test)
+time = np.linspace(0,5,25)
 
 
-U, V = evaluator(np.column_stack([I,J,J]),exprs[0],exprs[1])
-initial = np.array([[0,0],[1,0]])
-print(initial.shape)
-f = lambda t : lambda x_bar : evaluator(t,x_bar,exprs[0],exprs[1])
-od = LSODA(f,0,initial[:,1],1)
+#U, V = evaluator(time,np.column_stack([I,J]),exprs[0],exprs[1])
+initial = np.array([[0,0,0],[1,0,1]])
+#print(initial.shape)
 
-#for index,exprs in enumerate(exprs_pairs):
+f = lambda t,x_bar : evaluator(t,x_bar,exprs[0],exprs[1])
+soln = solve_ivp(f,(0,1),np.array([0,1]))
+print(soln.y)
+
+#for index,expr in enumerate(exprs_pairs):
 #    plt.figure()
-#    U,V = evaluator(I,I,J,exprs[0],exprs[1])
+#    U,V = evaluator(I,np.vstack([I,J]),expr[0],expr[1])
 #    #q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
 #    length = np.sqrt(U**2 + V**2)
-#    q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
+#    q = plt.quiver(I,J,U / length,V / length,scale=2,angles='xy',scale_units='xy')
 #    plt.quiverkey(q, X=0.1,Y=1.1,U=1,label='Length of 1',labelpos='S')
+#    plt.plot(soln.t,soln.y[0])
 #    #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
-#    plt.title(f"Equation u_1 = {exprs[0]} \n u_2 = {exprs[1]} ")
-#    plt.savefig(f'fields/field_4_{index}.jpg',dpi=200)
-#
+#    plt.title(f"Equation u_1 = {expr[0]} \n u_2 = {expr[1]} ")
+##    plt.savefig(f'fields/field_4_{index}.jpg',dpi=200)
 #    plt.show()
-        
+#       
