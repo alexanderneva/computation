@@ -411,51 +411,194 @@ def lowup(A):
     return l,d,u
 
 
-def iterative(A,b,error=0.1,step=1000):
+def richardson(A,b,error=0.1,step=1000,omega=1,tol=1e-3):
+    """Jacobi iterative solver. omega=1 for classical method"""
     n = A.shape[0]
-    omega = 1e-2
-    #B = make_spd(n)
-    #B =   (1  / np.diag(A) )
+    B = omega*np.eye(n)
+    Q = np.eye(n) - B@A
+    guess = np.random.normal(size=(n,))
+    err = []
+    err_x = []
+    err_0 = np.linalg.norm(A@guess - b)
+    x_error = np.linalg.norm(x-guess)
+
+    err.append(err_0)
+    err_x.append(np.linalg.norm(x-guess))
+
+    print("Spec radius of Q", np.linalg.norm(Q,2))
+    k = 0
+    while x_error > error:
+        prev = guess.copy()
+        guess = Q@prev + B@b
+        err_0 = np.linalg.norm(guess-prev)
+        x_error = np.linalg.norm(x-guess)
+        if x_error > 10e10:
+            print("Diverging")
+            break
+        err_x.append(x_error)
+        err.append(err_0)
+        if k % 10000==0:
+            print("Step ", k)
+            print("guess - x", x_error)
+            print("guess - prev",err_0)
+        if k > 10e4:
+            tol+=2*tol
+        #if k > step:
+        #    print("Step ", k)
+        #    err_0 = np.linalg.norm(A@(guess-prev))
+        #    print("Spec radius of Q", np.linalg.norm(Q,2))
+        #    return guess,err,err_x
+        if np.linalg.norm(prev-guess) <= tol:
+            print("Algorithm stopped at step ", k)
+            print("guess - x", x_error)
+            print("guess - prev",err_0)
+            return guess,err,err_x
+        k += 1
+#        omega -= 1e-5
+    return guess,err,err_x
+
+
+def jacobi(A,b,error=0.1,step=1000,omega=1,tol=1e-3):
+    """Jacobi iterative solver. omega=1 for classical method"""
+    n = A.shape[0]
     a_l,d,a_u = lowup(A)
-    print(d)
-    B = omega * np.linalg.inv(d) @(a_l+a_u)
+    B = omega*np.linalg.inv(d) @(a_l+a_u)
     #B = np.eye(n)
     Q = np.eye(n) - B@A
     guess = np.random.normal(size=(n,))
     err = []
     err_x = []
     err_0 = np.linalg.norm(A@guess - b)
+    x_error = np.linalg.norm(x-guess)
     err.append(err_0)
     err_x.append(np.linalg.norm(x-guess))
+
+    print("Spec radius of Q", np.linalg.norm(Q,2))
     k = 0
-    while err_0 > error:
+    while x_error > error:
         prev = guess.copy()
         guess = Q@prev + B@b
         err_0 = np.linalg.norm(guess-prev)
-        err_x.append(np.linalg.norm(x-guess))
+        x_error = np.linalg.norm(x-guess)
+        if x_error > 10e10:
+            print("Diverging")
+            break
+        err_x.append(x_error)
         err.append(err_0)
-        if k > step:
+        if k % 10000==0:
             print("Step ", k)
-            print("Spec radius of Q", np.linalg.norm(Q,2))
-            err_0 = np.linalg.norm(A@(guess-prev))
-            return guess,err,err_x
-        if np.linalg.norm(prev-guess) <= error:
+            print("guess - x", x_error)
+            print("guess - prev",err_0)
+        if k > 10e4:
+            tol+=2*tol
+        #if k > step:
+        #    print("Step ", k)
+        #    err_0 = np.linalg.norm(A@(guess-prev))
+        #    print("Spec radius of Q", np.linalg.norm(Q,2))
+        #    return guess,err,err_x
+        if np.linalg.norm(prev-guess) <= tol:
+            print("Algorithm stopped at step ", k)
+            print("guess - x", x_error)
+            print("guess - prev",err_0)
             return guess,err,err_x
         k += 1
-        omega -= 1e-5
+#        omega -= 1e-5
     return guess,err,err_x
 
+
+def gauss_seidel(A,b,error=0.1,step=1000,omega=1,tol=1e-3):
+    """Gauss-seidel iterative solver"""
+    n = A.shape[0]
+    a_l,d,_ = lowup(A)
+    B = omega*np.linalg.inv(a_l+d)
+    #B = np.eye(n)
+    Q = np.eye(n) - B@A
+    guess = np.random.normal(size=(n,))
+    err = []
+    err_x = []
+    err_0 = np.linalg.norm(A@guess - b)
+    x_error = np.linalg.norm(x-guess)
+    err.append(err_0)
+    err_x.append(np.linalg.norm(x-guess))
+
+    print("Spec radius of Q", np.linalg.norm(Q,2))
+    k = 0
+    while x_error > error:
+        prev = guess.copy()
+        guess = Q@prev + B@b
+        err_0 = np.linalg.norm(guess-prev)
+        x_error = np.linalg.norm(x-guess)
+        if x_error > 10e5:
+            print("Diverging")
+            break
+        err_x.append(x_error)
+        err.append(err_0)
+        if k % 10000==0:
+            print("Step ", k)
+            print("guess - x", x_error)
+            print("guess - prev",err_0)
+        if k > 10e4:
+            tol+=2*tol
+        #if k > step:
+        #    print("Step ", k)
+        #    err_0 = np.linalg.norm(A@(guess-prev))
+        #    print("Spec radius of Q", np.linalg.norm(Q,2))
+        #    return guess,err,err_x
+        if np.linalg.norm(prev-guess) <= tol:
+            print("Algorithm stopped at step ", k)
+            print("guess - x", x_error)
+            print("guess - prev",err_0)
+            return guess,err,err_x
+        k += 1
+#        omega -= 1e-5
+    return guess,err,err_x
 #
 #
-guess, err,err_x = iterative(eg_2,b,error=0.0001)
-print(guess, err[-1],err_x[-1])
-print("Relative error ", err_x[-1]/np.linalg.norm(x))
-print(eg_2@x)
+#guess, err,err_x = jacobi(eg_2,b,error=0.01)
+#print(guess, err[-1],err_x[-1])
+#print("Relative error ", err_x[-1]/np.linalg.norm(x))
+#print(eg_2@x)
+
+
 import matplotlib.pyplot as plt
 
-plt.plot(err)
-plt.plot(err_x)
-plt.show()
-print(eg_2@guess)
+#plt.plot(err)
+#plt.plot(err_x)
+#plt.show()
+##print(eg_2@guess)
+
+def sor(A,b,error=0.1,step=1000,omega=1,tol=1e-3):
+    """Successive over-relaxation"""
+    return 0,0,0
 
 
+def test_iteration(grid_lower,grid_upper,n,tol=1e-2,method='jacobi'):
+    if method not in ['richardson','jacobi','gauss_seidel','sor']:
+        print("No valid method detected")
+        return 0,0
+    omegas = np.linspace(grid_lower,grid_upper,n)
+    data = np.array([0,0,0])
+    for omega in omegas:
+        print("testing omega",omega)
+        guess, err,err_x = eval(method)(eg_2,b,error=0.001,omega=omega,tol=tol)
+        print(guess, err[-1],err_x[-1])
+        print("Relative error ", err_x[-1]/np.linalg.norm(x))
+        data = np.vstack([data,guess])
+
+    data = data[1:]
+    norms = [np.linalg.norm(i-x) for i in data]
+    return omegas,norms
+
+def iteration_test_suite():
+
+    for method in ['richardson','jacobi','gauss_seidel']:
+        omegas, norms = test_iteration(1e-5,1e-1,1000,1e-2,method)
+        plt.plot(omegas,norms)
+        plt.xlabel("omega")
+        plt.ylabel("||x - u^[N]||")
+        plt.title("parameter search " + method)
+        plt.tight_layout()
+        plt.savefig("iterative_results/"+method+".jpg")
+        plt.close()
+
+iteration_test_suite()
