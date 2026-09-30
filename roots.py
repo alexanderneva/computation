@@ -108,9 +108,37 @@ def newton(f,f_prime,x,nmax,epsilon,delta):
             return x,f_x
     return x,f_x
 
+def secant(f,a,b,nmax,epsilon):
+    """Secant method algorithm"""
+    f_a = f(a)
+    f_b = f(b)
+    if np.abs(f_a) > np.abs(f_b):
+        a = b.copy()
+        b = a.copy()
+        f_a = f_b.copy()
+        f_b = f_a.copy()
+    for n in range(1,nmax):
+        if np.abs(f_a) > np.abs(f_b):
+            a = b.copy()
+            b = a.copy()
+            f_a = f_b.copy()
+            f_b = f_a.copy()
+        d = (b-a)/(f_b-f_a)
+        b = a
+        f_b = f_a
+        d = d*f_a
+        if np.abs(d) < epsilon:
+            print("Convergence")
+        a = a - d
+        f_a = f(a)
+        return a,f_a,n
 
-print(false_position(f,1,2,100,10e-5))
-print(bisection(f,1,2,100,10e-5))
+print("Secant", secant(f,1,2,100,10e-5))
+
+
+
+print("False position", false_position(f,1,2,100,10e-5))
+print("Bisection", bisection(f,1,2,100,10e-5))
 
 
 from math import cbrt
@@ -131,7 +159,7 @@ def system(u):
     t = u[0]
     x = u[1]
     y = u[2]
-    return t*y+x, x**2-t*y, t*y**2
+    return t*y+x, x**2-y, t*y**2
 
 
 iv = np.array([-2.,2.,-1.])
@@ -153,13 +181,16 @@ def newton_rd_example(system,iv,n_step):
         x -= h
     return x, points
 
-#print(iv)
-iv, points = newton_rd_example(system,iv,10)
-
-print(iv)
-ax = plt.figure().add_subplot(projection='3d')
-ax.plot(points[:,0],points[:,1],points[:,2])
-ax.set_xlabel('t')
-ax.set_ylabel('x')
-ax.set_zlabel('y')
-plt.show()
+##print(iv)
+#iv, points = newton_rd_example(system,iv,10)
+#
+#print("iv", iv)
+#print("points", points)
+#ax = plt.figure().add_subplot(projection='3d')
+#ax.plot(points[:,0],points[:,1],points[:,2])
+#ax.set_xlabel('t')
+#ax.set_ylabel('x')
+#ax.set_zlabel('y')
+#plt.show()
+#
+##def f(x)
