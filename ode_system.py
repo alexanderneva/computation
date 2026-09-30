@@ -550,36 +550,64 @@ def sir_v(lamb,gamma,t,x):
 #                plt.close()
 
 
-def s_alpha(alpha,lamb,s,t):
-    """S compartment with age transfer alpha and infection tranfer lambda
-    s (2,)     : s[0] first age group s[1] second age group
+def s_alpha(alpha,lamb,s):
+    """S compartment with age transfer alpha and infection transfer lambda
+    s (3,)     : s[0] first age group s[1] second age group
     alpha (n,) : transfer rate from s_1 to s_2
     lamb (n+1,): infection rate for s_1 and s_2"""
 
-    return -(alpha+lamb[0])*s[0],-(alpha+lamb[1])*s[1]
+    s_1 = s[0]
+    s_2 = s[1]
+    s_3 = s[2]
+    s_1_p = -(alpha[0]+lamb[0])*s_1
+    s_2_p =  alpha[0]*s_1-alpha[1]*s_2 #-lamb[1]*s_2
+    s_3_p = alpha[1]*s_2 - lamb[2]*s_3 
+
+    return s_1_p,s_2_p,s_3_p
 
 
 
 
-
-def taylor_system_10(f,s,i,r,b,d,K,delta,gamma,lamb,t0,t1,n):
-    """Naive 2 S compartment connection"""
+def taylor_system_10(f,s,alpha,lamb,t0,t1,n):
+    """Naive 2 S compartment connection. Forward 2nd order"""
     t = t0
     h = (t1 - t0) / n
-    points = np.zeros([3,n])
+    points = np.zeros([4,n])
 
     for k in range(n):
         points[0,k] = t
-        points[1,k] = s
-        points[2,k] = i
-        s_p,i_p,r_p = sirs_b(t,s,i,r,b,d,K,delta,lamb,gamma)
-        n = s + i + r
-        n_p = s_p + i_p + r_p
-        s_pp = n*n_p - 2*n*n_p / K - (lamb -d)*s_p + delta*r_p
-        i_pp = lamb*(i_p*s + s_p*i) - (gamma+d)*i_p
-        r_pp = gamma*i_p - (d+delta)*r_p
+        points[1,k] = s[0]
+        points[2,k] = s[1]
+        points[3,k] = s[2]
+        s_1_p,s_2_p,s_3_p = f(alpha,lamb,s)
+        s_1_pp = -alpha[0]*s_1_p - lamb[0]*s_1_p
+        s_2_pp = alpha[0]*s_1_p - lamb[1]*s_2_p - alpha[1]*s_2_p
+        s_3_pp = alpha[1]*s_2_p #- lamb[2]*s_3_p
         t += h
-        s += h*(s_p + 0.5*s_pp)
-        i += h*(i_p + 0.5*i_pp)
-        r += h*(r_p + 0.5*i_pp)
+        s[0] += h*(s_1_p + 0.5*s_1_pp)
+        s[1] += h*(s_2_p + 0.5*s_2_pp)
+        s[2] += h*(s_3_p + 0.5*s_3_pp)
     return points
+
+
+alpha = 0.5*np.ones(2)
+lamb = np.random.normal(loc=0.5,scale=0.2,size=3)
+initial = np.array([0.9,0.05,0.05])
+points = taylor_system_10(s_alpha,initial,alpha,lamb,0,50,100)
+t = points[0,:]
+s_1 = points[1,:]
+s_2 = points[2,:]
+s_3 = points[3,:]
+
+plt.plot(t,s_1, label='population 1')
+plt.plot(t,s_2, label='population 2')
+plt.plot(t,s_3, label='population 3')
+plt.xlabel('Time')
+plt.ylabel('Percentage')
+plt.title(f"Second order approx \n Three age compartments alpha = {alpha} \n lambda = {lamb}")
+plt.grid()
+plt.legend()
+plt.savefig(f'odes/sir_alpha_system.jpg')
+plt.tight_layout()
+plt.show()
+plt.close()
