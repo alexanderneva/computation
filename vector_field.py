@@ -106,9 +106,9 @@ exprs = [expr_0,expr_1,expr_2,expr_3,expr_4,expr_5,expr_6,expr_7]
 
 from ode_system import sirs_bv
 
-deltas = np.linspace(0.25,0.75,3)
-gammas = np.linspace(0.25,0.75,3)
-lambdas = np.linspace(0.25,0.75,3)
+deltas = np.linspace(0.25,0.75,2)
+gammas = np.linspace(0.25,0.75,2)
+lambdas = np.linspace(0.25,0.75,2)
 bs = np.linspace(0,1,4)
 b = bs[1]
 d = 1 - b
@@ -120,14 +120,9 @@ K = 1.5
 test = np.linspace(0,1,25)
 x = np.meshgrid(test,test,test)
 
-points = sirs_bv(b,d,K,delta,lamb,gamma,test,x)
-U = points[:,0]
-V = points[:,1]
-W = points[:,2]
-
-sol = solve_ivp(lambda t,x : sirs_bv(b,d,K,delta,lamb,gamma,t,x),(0,1),np.array([0.9,0.1,0.]),t_eval=test)
-t = sol.t
-y = sol.y
+#sol = solve_ivp(lambda t,x : sirs_bv(b,d,K,delta,lamb,gamma,t,x),(0,1),np.array([0.9,0.1,0.]),t_eval=test)
+#t = sol.t
+#y = sol.y
 #print(y.shape)
 #plt.plot(t,y[0,:],label='susc')
 #plt.plot(t,y[1,:],label='inf')
@@ -135,8 +130,22 @@ y = sol.y
 #plt.legend()
 #plt.tight_layout()
 #plt.show()
-#length = np.sqrt(U**2 + V**2 + W**2)
-ax = plt.figure().add_subplot(projection='3d')
+
+points = sirs_bv(b,d,K,delta,lamb,gamma,test,x)
+U = points[:,0]
+V = points[:,1]
+W = points[:,2]
+
+#sol = solve_ivp(lambda t,x : sirs_bv(b,d,K,delta,lamb,gamma,t,x),(0,1),np.array([0.9,0.1,0.]),t_eval=test)
+#t = sol.t
+#y = sol.y
+#print(y.shape)
+#plt.plot(t,y[0,:],label='susc')
+#plt.plot(t,y[1,:],label='inf')
+#plt.plot(t,y[2,:],label='rec')
+#plt.legend()
+#plt.tight_layout()
+#plt.show()
 for b in bs:
     for delta in deltas:
         for gamma in gammas:
@@ -146,13 +155,25 @@ for b in bs:
                 u = points[:,0]
                 v = points[:,1]
                 w = points[:,2]
+
+                ax = plt.figure().add_subplot(projection='3d')
                 ax.quiver(test,test,test,u,v,w ,length=0.1,normalize=True)
-                ax.set_aspect('equal')
-ax.scatter(y[0,:],y[1,:],y[2,:])
-ax.set_xlabel("s")
-ax.set_ylabel("i")
-ax.set_zlabel("r")
+                ax.set_title(f"Vector field for sirs with birth {np.round(b,2)} death {np.round(d,2)} delta {np.round(delta,2)}\n lambda {np.round(lamb,2)} gamma {np.round(gamma,2)}")
+
+                #                ax.scatter(y[0,:],y[1,:],y[2,:])
+                ax.set_xlabel("s")
+                ax.set_ylabel("i")
+                ax.set_zlabel("r")
+                plt.tight_layout()
+                plt.show()
+
+#ax.scatter(y[0,:],y[1,:],y[2,:])
+#ax.set_xlabel("s")
+#ax.set_ylabel("i")
+#ax.set_zlabel("r")
+#ax.set_aspect('equal')
 #ax.set_zlim([np.min(y[2,:]),np.max(y[2,:])])
-plt.tight_layout()
-plt.show()
+#plt.title(f"Vector field for sirs with birth {b} death {d} delta {delta}\n lambda {lamb} gamma {gamb}")
+#plt.tight_layout()
+#plt.show()
 #ax.quiverkey(q, X=0.3,Y=1.1,U=1,label='Length of 2',labelpos='E')
