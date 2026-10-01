@@ -22,6 +22,9 @@ expr_15 = '(t**2 + 3*y**2)/(2*t*y)'
 expr_16 = 'y*(1-2*y)'
 expr_17 = 'y+y**2'
 expr_18 = 'y*(y-1)*(y-2)'
+expr_19 = 'np.exp(y) -1'
+expr_20 = '-2*np.arctan(y) / (1 + y**2)'
+expr_21 = '-2*(y-1)**2'
 expr_list = [expr_1,expr_2,expr_3,expr_4,expr_5,expr_6,expr_7,expr_8,expr_9,expr_10,expr_11,expr_12,expr_13,expr_14,expr_15]
 
 def evaluator_1(t,y,expr):
@@ -45,7 +48,7 @@ def plot_field(expr,index):
     """Convert a functional first order ODE expression into vector field plot"""
 #    q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
     t_max = 2
-    t_min = 1e-5
+    t_min = -2
     time = np.linspace(t_min,t_max,25)
     space = np.linspace(-2,2,25)
     I, J = np.meshgrid(time,space)
@@ -79,7 +82,7 @@ def plot_field(expr,index):
     plt.show()
 
 
-plot_field(expr_18,17)
+plot_field(expr_21,19)
 
 #for index,expr in enumerate(expr_list):
 #    plot_field(expr,index)
