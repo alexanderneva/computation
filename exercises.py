@@ -19,6 +19,9 @@ expr_12 = '3*t**2 / (3 *y**2 - 4)'
 expr_13 = '(y - 4*t) / (t-y)'
 expr_14 = '(t**2 + t*y + y**2 )/ t**2'
 expr_15 = '(t**2 + 3*y**2)/(2*t*y)'
+expr_16 = 'y*(1-2*y)'
+expr_17 = 'y+y**2'
+expr_18 = 'y*(y-1)*(y-2)'
 expr_list = [expr_1,expr_2,expr_3,expr_4,expr_5,expr_6,expr_7,expr_8,expr_9,expr_10,expr_11,expr_12,expr_13,expr_14,expr_15]
 
 def evaluator_1(t,y,expr):
@@ -57,7 +60,7 @@ def plot_field(expr,index):
     q = ax.quiver(I,J,U / length,V / length,scale=10,angles='xy',scale_units='xy',pivot='mid')
     ax.quiverkey(q, X=0.1,Y=1.1,U=1,label='Length of 1',labelpos='E')
     #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
-    cs = np.arange(-2,2,0.5)
+    cs = np.arange(-2,2,0.25)
     for c in cs:
         for t0 in np.arange(t_min,t_max,1):
             y0 = c
@@ -76,7 +79,7 @@ def plot_field(expr,index):
     plt.show()
 
 
-plot_field(expr_15,0)
+plot_field(expr_18,17)
 
-for index,expr in enumerate(expr_list):
-    plot_field(expr,index)
+#for index,expr in enumerate(expr_list):
+#    plot_field(expr,index)
