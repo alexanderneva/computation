@@ -550,7 +550,7 @@ def sir_v(lamb,gamma,t,x):
 #                plt.close()
 
 
-def s_alpha(alpha,lamb,s):
+def s_alpha(alpha,lamb,gamma,s,i,r):
     """S compartment with age transfer alpha and infection transfer lambda
     s (3,)     : s[0] first age group s[1] second age group
     alpha (n,) : transfer rate from s_1 to s_2
@@ -562,49 +562,94 @@ def s_alpha(alpha,lamb,s):
     s_1_p = -(alpha[0]+lamb[0])*s_1
     s_2_p =  alpha[0]*s_1-alpha[1]*s_2 #-lamb[1]*s_2
     s_3_p = alpha[1]*s_2 - lamb[2]*s_3 
+#    s_p = np.array([s_1_p,s_2_p,s_3_p])
+    i_1 = i[0]
+    i_2 = i[1]
+    i_3 = i[2]
+    i_1_p = lamb[0]*s_1 - gamma[0]*i_1 -alpha[0]*i_1
+    i_2_p = lamb[1]*s_2 - gamma[1]*i_2 + alpha[0]*i_1 - alpha[1]*i_2
+    i_3_p = lamb[2]*s_3 - gamma[2]*i_3 + alpha[1]*i_2
+    r_1 = r[0]
+    r_2 = r[1]
+    r_3 = r[2]
+    r_1_p = gamma[0]*i_1 - alpha[0]*i_1
+    r_2_p = gamma[1]*i_2 + alpha[0]*i_1 - alpha[1]*r_2
+    r_3_p = gamma[2]*i_3 + alpha[1]*r_2 - alpha[2]*r_3
+    state = np.array([s_1_p,s_2_p,s_3_p,i_1_p,i_2_p,i_3_p,r_1_p,r_2_p,r_3_p])
+    return state
 
-    return s_1_p,s_2_p,s_3_p
 
 
 
-
-def taylor_system_10(f,s,alpha,lamb,t0,t1,n):
+def taylor_system_10(f,initial,alpha,lamb,gamma,t0,t1,n):
     """Naive 2 S compartment connection. Forward 2nd order"""
     t = t0
     h = (t1 - t0) / n
-    points = np.zeros([4,n])
+    points = np.zeros([10,n])
+
+    s = initial[:,0]
+    i = initial[:,1]
+    r = initial[:,2]
 
     for k in range(n):
         points[0,k] = t
         points[1,k] = s[0]
         points[2,k] = s[1]
         points[3,k] = s[2]
-        s_1_p,s_2_p,s_3_p = f(alpha,lamb,s)
+        points[4,k] = i[0]
+        points[5,k] = i[1]
+        points[6,k] = i[2]
+        points[7,k] = r[0]
+        points[8,k] = r[1]
+        points[9,k] = r[2]
+        s_1_p,s_2_p,s_3_p,i_1_p,i_2_p,i_3_p,r_1_p,r_2_p,r_3_p = f(alpha,lamb,gamma,s,i,r)
         s_1_pp = -alpha[0]*s_1_p - lamb[0]*s_1_p
         s_2_pp = alpha[0]*s_1_p - lamb[1]*s_2_p - alpha[1]*s_2_p
-        s_3_pp = alpha[1]*s_2_p #- lamb[2]*s_3_p
+        s_3_pp = alpha[1]*s_2_p - lamb[2]*s_3_p
         t += h
         s[0] += h*(s_1_p + 0.5*s_1_pp)
         s[1] += h*(s_2_p + 0.5*s_2_pp)
         s[2] += h*(s_3_p + 0.5*s_3_pp)
+        i[0] += h*(i_1_p)
+        i[1] += h*(i_2_p)
+        i[2] += h*(i_3_p)
+        r[0] += h*r_1_p
+        r[1] += h*r_2_p
+        r[2] += h*r_3_p
     return points
 
 
-alpha = 0.5*np.ones(2)
-lamb = np.random.normal(loc=0.5,scale=0.2,size=3)
-initial = np.array([0.9,0.05,0.05])
-points = taylor_system_10(s_alpha,initial,alpha,lamb,0,50,100)
+alpha = 0.5*np.ones(3)
+lamb = np.array([0.1,0.3,0.7])
+gamma = np.array([0.8,0.8,0.2])
+initial_s = np.array([0.1,0.4,0.5])
+initial_i = np.array([0.03,0.03,0.03])
+initial_r = np.zeros(3)
+initial = np.column_stack([initial_s,initial_i,initial_r])
+points = taylor_system_10(s_alpha,initial,alpha,lamb,gamma,0,15,100)
 t = points[0,:]
 s_1 = points[1,:]
 s_2 = points[2,:]
 s_3 = points[3,:]
+i_1 = points[4,:]
+i_2 = points[5,:]
+i_3 = points[6,:]
+r_1 = points[7,:]
+r_2 = points[8,:]
+r_3 = points[9,:]
 
 plt.plot(t,s_1, label='population 1')
 plt.plot(t,s_2, label='population 2')
 plt.plot(t,s_3, label='population 3')
+plt.plot(t,i_1, label='infected population 1')
+plt.plot(t,i_2, label='infected population 2')
+plt.plot(t,i_3, label='infected population 3')
+plt.plot(t,r_1, label='recovered population 3')
+plt.plot(t,r_2, label='recovered population 3')
+plt.plot(t,r_3, label='recovered population 3')
 plt.xlabel('Time')
 plt.ylabel('Percentage')
-plt.title(f"Second order approx \n Three age compartments alpha = {alpha} \n lambda = {lamb}")
+plt.title(f"Second order approx \n Three age compartments alpha = {alpha} \n lambda = {lamb}\n gamma = {gamma}")
 plt.grid()
 plt.legend()
 plt.savefig(f'odes/sir_alpha_system.jpg')
