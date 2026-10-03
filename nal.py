@@ -282,6 +282,8 @@ def make_spd(n):
 
 A = make_spd(n)
 
+print(np.linalg.eig(A))
+
 def cholesky(A):
     a = A.copy()
     n = A.shape[0]

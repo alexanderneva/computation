@@ -25,6 +25,9 @@ expr_18 = 'y*(y-1)*(y-2)'
 expr_19 = 'np.exp(y) -1'
 expr_20 = '-2*np.arctan(y) / (1 + y**2)'
 expr_21 = '-2*(y-1)**2'
+expr_22 = 'y**2*(y**2-1)'
+expr_23 = '0.5*y - np.sqrt(y)'
+expr_24 = '0.025*y*np.log(2/y)'
 expr_list = [expr_1,expr_2,expr_3,expr_4,expr_5,expr_6,expr_7,expr_8,expr_9,expr_10,expr_11,expr_12,expr_13,expr_14,expr_15]
 
 def evaluator_1(t,y,expr):
@@ -47,10 +50,10 @@ def zero_event(t,y):
 def plot_field(expr,index):
     """Convert a functional first order ODE expression into vector field plot"""
 #    q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
-    t_max = 2
-    t_min = -2
+    t_max = 10
+    t_min = 0
     time = np.linspace(t_min,t_max,25)
-    space = np.linspace(-2,2,25)
+    space = np.linspace(0,6,25)
     I, J = np.meshgrid(time,space)
     fig, ax = plt.subplots()
     U = np.ones_like(I)
@@ -63,7 +66,7 @@ def plot_field(expr,index):
     q = ax.quiver(I,J,U / length,V / length,scale=10,angles='xy',scale_units='xy',pivot='mid')
     ax.quiverkey(q, X=0.1,Y=1.1,U=1,label='Length of 1',labelpos='E')
     #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
-    cs = np.arange(-2,2,0.25)
+    cs = np.arange(0,6,0.25)
     for c in cs:
         for t0 in np.arange(t_min,t_max,1):
             y0 = c
@@ -72,7 +75,7 @@ def plot_field(expr,index):
             ax.plot(sol.t,sol.y[0],label='Soln at t0 = '+str(t0)+' y0 = '+str(y0))
 ##          #  ax.plot(time,solution_4(time,y0))
 #    ax.set_aspect('equal')
-    ax.set_ylim(-2.5,2.5)
+#    ax.set_ylim(-2.5,2.5)
 
     plt.title(f"Equation u_1 = {expr} \n")
     plt.tight_layout()
@@ -82,7 +85,7 @@ def plot_field(expr,index):
     plt.show()
 
 
-plot_field(expr_21,19)
+plot_field(expr_24,22)
 
 #for index,expr in enumerate(expr_list):
 #    plot_field(expr,index)

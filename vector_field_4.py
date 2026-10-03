@@ -26,7 +26,7 @@ initial = np.array([[0,0,0],[1,0,1]])
 
 f = lambda t,x_bar : evaluator(t,x_bar,exprs[0],exprs[1])
 soln = solve_ivp(f,(0,1),np.array([0,1]))
-print(soln.y)
+#print(soln.y)
 
 #for index,expr in enumerate(exprs_pairs):
 #    plt.figure()
@@ -41,3 +41,16 @@ print(soln.y)
 ##    plt.savefig(f'fields/field_4_{index}.jpg',dpi=200)
 #    plt.show()
 #       
+
+
+for index,expr in enumerate(exprs_pairs):
+    plt.figure()
+    U,V = evaluator(I,np.vstack([I,J]),expr[0],expr[1])
+    #q = ax[index].quiver(i,j,i+0.5,0.5*func(i,j)+j)
+    length = np.sqrt(U**2 + V**2)
+    q = plt.streamplot(I,J,U,V,color=length)
+#    plt.plot(soln.t,soln.y[0])
+    #ax[index].quiverkey(q, X=0.3,Y=0.3,U=1,label='Test',labelpos='E')
+    plt.title(f"Equation u_1 = {expr[0]} \n u_2 = {expr[1]} ")
+    plt.savefig(f'fields/field_5_{index}.jpg',dpi=200)
+    plt.show()
