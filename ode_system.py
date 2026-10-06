@@ -560,7 +560,7 @@ def s_alpha(alpha,lamb,gamma,s,i,r):
     s_2 = s[1]
     s_3 = s[2]
     s_1_p = -(alpha[0]+lamb[0])*s_1
-    s_2_p =  alpha[0]*s_1-alpha[1]*s_2 #-lamb[1]*s_2
+    s_2_p =  alpha[0]*s_1-alpha[1]*s_2 -lamb[1]*s_2
     s_3_p = alpha[1]*s_2 - lamb[2]*s_3 
 #    s_p = np.array([s_1_p,s_2_p,s_3_p])
     i_1 = i[0]
@@ -572,8 +572,8 @@ def s_alpha(alpha,lamb,gamma,s,i,r):
     r_1 = r[0]
     r_2 = r[1]
     r_3 = r[2]
-    r_1_p = gamma[0]*i_1 - alpha[0]*i_1
-    r_2_p = gamma[1]*i_2 + alpha[0]*i_1 - alpha[1]*r_2
+    r_1_p = gamma[0]*i_1 - alpha[0]*r_1
+    r_2_p = gamma[1]*i_2 + alpha[0]*r_1 - alpha[1]*r_2
     r_3_p = gamma[2]*i_3 + alpha[1]*r_2 - alpha[2]*r_3
     state = np.array([s_1_p,s_2_p,s_3_p,i_1_p,i_2_p,i_3_p,r_1_p,r_2_p,r_3_p])
     return state
@@ -606,16 +606,22 @@ def taylor_system_10(f,initial,alpha,lamb,gamma,t0,t1,n):
         s_1_pp = -alpha[0]*s_1_p - lamb[0]*s_1_p
         s_2_pp = alpha[0]*s_1_p - lamb[1]*s_2_p - alpha[1]*s_2_p
         s_3_pp = alpha[1]*s_2_p - lamb[2]*s_3_p
+        i_1_pp = lamb[0]*s_1_p - gamma[0]*i_1_p -alpha[0]*i_1_p
+        i_2_pp = lamb[1]*s_2_p - gamma[1]*i_2_p + alpha[0]*i_1_p - alpha[1]*i_2_p
+        i_3_pp = lamb[2]*s_3_p - gamma[2]*i_3_p + alpha[1]*i_2_p
+        r_1_pp = gamma[0]*i_1_p - alpha[0]*r_1_p
+        r_2_pp = gamma[1]*i_2_p + alpha[0]*r_1_p - alpha[1]*r_2_p
+        r_3_pp = gamma[2]*i_3_p + alpha[1]*r_2_p - alpha[2]*r_3_p
+        s[0] += h*(s_1_p + 0.5*h*s_1_pp)
+        s[1] += h*(s_2_p + 0.5*h*s_2_pp)
+        s[2] += h*(s_3_p + 0.5*h*s_3_pp)
+        i[0] += h*(i_1_p+ 0.5*h*i_1_pp)
+        i[1] += h*(i_2_p+ 0.5*h*i_2_pp)
+        i[2] += h*(i_3_p+ 0.5*h*i_3_pp)
+        r[0] += h*(r_1_p + 0.5*h*r_1_pp)
+        r[1] += h*(r_2_p + 0.5*h*r_2_pp)
+        r[2] += h*(r_3_p + 0.5*h*r_3_pp)
         t += h
-        s[0] += h*(s_1_p + 0.5*s_1_pp)
-        s[1] += h*(s_2_p + 0.5*s_2_pp)
-        s[2] += h*(s_3_p + 0.5*s_3_pp)
-        i[0] += h*(i_1_p)
-        i[1] += h*(i_2_p)
-        i[2] += h*(i_3_p)
-        r[0] += h*r_1_p
-        r[1] += h*r_2_p
-        r[2] += h*r_3_p
     return points
 
 
@@ -644,8 +650,8 @@ plt.plot(t,s_3, label='population 3')
 plt.plot(t,i_1, label='infected population 1')
 plt.plot(t,i_2, label='infected population 2')
 plt.plot(t,i_3, label='infected population 3')
-plt.plot(t,r_1, label='recovered population 3')
-plt.plot(t,r_2, label='recovered population 3')
+plt.plot(t,r_1, label='recovered population 1')
+plt.plot(t,r_2, label='recovered population 2')
 plt.plot(t,r_3, label='recovered population 3')
 plt.xlabel('Time')
 plt.ylabel('Percentage')
