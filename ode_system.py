@@ -582,7 +582,7 @@ def s_alpha(alpha,lamb,gamma,s,i,r):
 
 
 def taylor_system_10(f,initial,alpha,lamb,gamma,t0,t1,n):
-    """Naive 2 S compartment connection. Forward 2nd order"""
+    """Naive 3 S compartment connection. Forward 2nd order"""
     t = t0
     h = (t1 - t0) / n
     points = np.zeros([10,n])

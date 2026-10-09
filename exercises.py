@@ -28,6 +28,7 @@ expr_21 = '-2*(y-1)**2'
 expr_22 = 'y**2*(y**2-1)'
 expr_23 = '0.5*y - np.sqrt(y)'
 expr_24 = '0.025*y*np.log(2/y)'
+expr_25 = '-2e-12*y**4'
 expr_list = [expr_1,expr_2,expr_3,expr_4,expr_5,expr_6,expr_7,expr_8,expr_9,expr_10,expr_11,expr_12,expr_13,expr_14,expr_15]
 
 def evaluator_1(t,y,expr):
@@ -45,15 +46,18 @@ def solution_1(t,c):
 def solution_4(t,c):
     return 3/2 *(np.sin(2*t)+np.cos(2*t)/2/t)
 
+def solution_5(t,c):
+    return 1/(t*(-3)-1/2000**3)**3
+
 def zero_event(t,y):
     return abs(y[0])-1e-3
 def plot_field(expr,index):
     """Convert a functional first order ODE expression into vector field plot"""
 #    q = plt.quiver(I,J,U / length,V / length,scale=25,angles='xy')
-    t_max = 10
-    t_min = 0
+    t_max = 1
+    t_min = 1e-5
     time = np.linspace(t_min,t_max,25)
-    space = np.linspace(0,6,25)
+    space = np.linspace(-10,10,25)
     I, J = np.meshgrid(time,space)
     fig, ax = plt.subplots()
     U = np.ones_like(I)
@@ -85,7 +89,11 @@ def plot_field(expr,index):
     plt.show()
 
 
-plot_field(expr_24,22)
+plot_field(expr_25,23)
 
 #for index,expr in enumerate(expr_list):
 #    plot_field(expr,index)
+
+#y = np.linspace(0.1,1)
+#plt.plot(y,eval(expr_25))
+#plt.show()
