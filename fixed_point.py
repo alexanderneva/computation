@@ -1,5 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+def cfb(n,a,b):
+    """
+    General backward continued fraction
+    """
+    if n==0:
+        return 1
+    elif n==1:
+        return 1
+    else:
+        return (a + b / cfb(n-1,a,b))
+
 def fb(n):
     """
     Backward Continued fraction for (1+phi) / 2
@@ -24,6 +37,19 @@ points=np.zeros(N_step)
 for i in range(1,N_step):
     points[i] += np.abs(fb(i)-ff(i,N_step)) 
 
-plt.plot(points)
-plt.title('Absolute error of forward and backward fibonacci ratio')
-plt.savefig('iterative_results/forward_backward.jpg',dpi=200)
+#plt.plot(points)
+#plt.title('Absolute error of forward and backward fibonacci ratio')
+#plt.savefig('iterative_results/forward_backward.jpg',dpi=200)
+N_step = 15
+N_params = 100
+points = np.zeros([N_params,N_params])
+params = np.arange(1,N_params)
+for i in params:
+    for j in params:
+        points[i,j] += cfb(N_step,i,j)
+
+plt.plot(points[1:,1:].flatten())
+plt.title(f'{N_step} Step Continued fraction over first {N_params} natural numbers')
+plt.savefig('iterative_results/cf_over_natural_grid.jpg',dpi=200)
+        
+
