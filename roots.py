@@ -2,8 +2,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def divide_2(f,a,b,steps,tau):
+    """Take successive midpoints around the x intercept until tolerance tau or steps"""
+    x = a
+    for n in range(steps):
+        print("step ",n, "x = ",x)
+        if f(a)*f(b)> 0:
+            print("stopped sign")
+            return x
+        elif (b-a)/2 < tau:
+            print("stoppped tolerance")
+            return x
+        else:
+            x = a - (b-a)/(f(b)-f(a))*f(a)
+            if x <= (a+b)/2:
+                b = (a+b)/2
+            else:
+                a = (a+b)/2
+    return x
 
-def bisection(f,a,b,n_step,eps):
+def bisection(f,a,b,n_step,tau):
     f_a = f(a)
     f_b = f(b)
     f_c = 0
@@ -15,8 +33,8 @@ def bisection(f,a,b,n_step,eps):
     for i in range(n_step):
         error /= 2
         c = a + error
-        f_c += f(c)
-        if np.abs(error) < eps:
+        f_c = f(c)
+        if error < tau:
             return i,c,f_c,error
         if np.sign(f_a)!= np.sign(f_c):
             b = c
@@ -56,14 +74,14 @@ def f(x):
     return x**2-x+1
 
 
-a_0 = f(0)
-print("a_0 ", a_0)
-a_1 = f(-a_0)-a_0
-print("a_1 ",a_1)
-a_2 = f(a_1)-a_1
-print("a_2 ", a_2)
-a_3 = f(-a_2)-a_2
-print("a_3 ", a_3)
+#a_0 = f(0)
+#print("a_0 ", a_0)
+#a_1 = f(-a_0)-a_0
+#print("a_1 ",a_1)
+#a_2 = f(a_1)-a_1
+#print("a_2 ", a_2)
+#a_3 = f(-a_2)-a_2
+#print("a_3 ", a_3)
 
 #eval_bisection(f,-0.5,5,100)
 
@@ -133,12 +151,12 @@ def secant(f,a,b,nmax,epsilon):
         f_a = f(a)
         return a,f_a,n
 
-print("Secant", secant(f,1,2,100,10e-5))
-
-
-
-print("False position", false_position(f,1,2,100,10e-5))
-print("Bisection", bisection(f,1,2,100,10e-5))
+#print("Secant", secant(f,1,2,100,10e-5))
+#
+#
+#
+#print("False position", false_position(f,1,2,100,10e-5))
+#print("Bisection", bisection(f,1,2,100,10e-5))
 
 
 from math import cbrt
@@ -148,9 +166,10 @@ def f(x):
 
 def f_p(x):
     return 3*x**2
-ro, f_root = newton(f,f_p,1,100,10e-5,10e-5)
 
-print(f"Root {ro}, f(root) {f_root} \n actual {cbrt(3)} relative error {(ro-cbrt(3))/cbrt(3)}")
+#ro, f_root = newton(f,f_p,1,100,10e-5,10e-5)
+
+#print(f"Root {ro}, f(root) {f_root} \n actual {cbrt(3)} relative error {(ro-cbrt(3))/cbrt(3)}")
 
 
 from scipy.differentiate import jacobian
@@ -192,5 +211,15 @@ def newton_rd_example(system,iv,n_step):
 #ax.set_ylabel('x')
 #ax.set_zlabel('y')
 #plt.show()
-#
-##def f(x)
+
+
+def f(x):
+    return 5*x**3 -5*x**2+3*x-2
+
+
+print(divide_2(f,-2,2,20,1e-3))
+print(np.roots([5,-5,3,2]))
+print(bisection(f,-2,2,20,1e-3))
+#t = np.linspace(-10,10)
+#plt.plot(t,f(t))
+#plt.show()
