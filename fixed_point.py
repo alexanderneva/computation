@@ -91,13 +91,13 @@ def test():
     plt.savefig('iterative_results/cf_over_real_grid.jpg',dpi=200)
     return 0 
 
-#points = np.zeros(20)
-#for i in range(20):
-#    points[i] += fb(i+1)/fb(i)
-#
-#plt.plot(points)
-#plt.grid()
-#plt.show()
+points = np.zeros(30)
+for i in range(30):
+    points[i] += np.abs(fb(i+2)/fb(i+1) - (1+np.sqrt(5))/2) / np.abs(fb(i+1)/fb(i) - (1+np.sqrt(5))/2)
+
+plt.plot(points)
+plt.grid()
+plt.show()
 
 def g(x):
     return (3*x+2) / (x + 2)
@@ -118,5 +118,6 @@ def g_2(x):
     return np.sqrt(2*x+4)
 
 for i in range(0,10):
-    print(iterate(g_2,i,5)/2)
-    print(iterate(g_1,i,5)/2)
+#    print(iterate(g_2,i,6))
+#    print(iterate(g_1,i,6))
+    print(fibb(i+1)/fibb(i))
