@@ -1,5 +1,5 @@
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 n = 3
 m = 3
@@ -93,17 +93,17 @@ def gaussian_elim_mult(A,b):
 
 
 def lu(x):
-    a = x.copy()
+    a = x.astype(dtype=float)
     n,_ = np.shape(a)
-    l = np.zeros_like(a)
-    u = np.zeros_like(a)
+    l = np.zeros_like(a,dtype=float)
+    u = np.zeros_like(a,dtype=float)
 #    u = forward_sub(x)
     for k in range(n):
-        l[k,k] = 1
-        u[k,k] = a[k,k] - l[k,:k] @ u[:k,k]
+        l[k,k] = 1.
+#        u[k,k] = a[k,k] - l[k,:k] @ u[:k,k]
         for j in range(k,n):
             u[k,j] = (a[k,j] - l[k,:k] @ u[:k,j]) 
-        for i in range(k,n):
+        for i in range(k+1,n):
             l[i,k] = (a[i,k] - l[i,:k] @ u[:k,k]) / u[k,k]
     return l,u
 
@@ -235,9 +235,9 @@ b = np.array([1,0,2])
 #print(l@u)
 #
 def doolittle(A):
-    a = A.copy()
+    a = A.astype(float)
     n,_ = np.shape(A)
-    l = np.eye(n)
+    l = np.eye(n,dtype=float)
     u = np.zeros_like(A,dtype=float)
 
     for k in range(n):
@@ -282,7 +282,7 @@ def make_spd(n):
 
 A = make_spd(n)
 
-print(np.linalg.eig(A))
+#print(np.linalg.eig(A))
 
 def cholesky(A):
     a = A.copy()
@@ -365,8 +365,8 @@ eg_2 = np.array([
 #eig_vals = np.linalg.eigvals(eg_2)
 ##print(eig_vals)
 #print(np.linalg.det(eg_2))
-_,_,x = solve(eg_2,b)
-x_ = np.linalg.solve(eg_2,b)
+#_,_,x = solve(eg_2,b)
+#x_ = np.linalg.solve(eg_2,b)
 #print("x ", x)
 #print("A@x ", eg_2@x)
 #print(b)
@@ -405,8 +405,8 @@ def cofactor(A):
             a = np.split(a,i)
 
             print(a)
-            #a = np.delete(a,j,axis=1)
-            #C[i,j] += np.linalg.det(a)
+            a = np.delete(a,j,axis=1)
+            C[i,j] += np.linalg.det(a)
     return C
 
 #print(cofactor(eg_2))
@@ -621,6 +621,26 @@ def iteration_test_suite():
 
 #iteration_test_suite()
 
+A = np.array([
+    [1,2,3,4],
+    [-2,-3,-2,-1],
+    [3,4,4,1],
+    [2,-1,3,5]
+])
 
-
+l_1,u_1=doolittle(A)
+#f = np.array([4,6,-13,15])
+#print(np.linalg.solve(A,f))
+l_2,u_2=lu(A)
+print(l_1)
+print(l_2)
+print(u_2)
+print(l_2-l_1)
+print('l_2@u_2 \n', l_2@u_2)
+#print(l_1@u_1)
+#print(l_2@u_2)
+#print(l_1@l_1.T)
+#print(l_1)
+#print(cofactor(A))
+#print(np.linalg.cholesky(A+7*np.eye(4)))
 
