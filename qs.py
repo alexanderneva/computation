@@ -243,12 +243,12 @@ def phi(x):
     """
     return x + f(x)
 
-n_step = 15
-tau = 1e-3
-x_0 = 0
-points = iterate_u(phi,0,n_step,tau)
-root = points[-1]
-step_stop = points.shape[0]
+#n_step = 15
+#tau = 1e-3
+#x_0 = 0
+#points = iterate_u(phi,0,n_step,tau)
+#root = points[-1]
+#step_stop = points.shape[0]
 #steps = np.arange(step_stop)
 #plt.plot(steps,points)
 #plt.title(rf"Successive sub. on $\phi(x) = x + f(x)$ {'\n'} at $x_0 = {x_0}$ Tol {tau} reached at step {step_stop}")
@@ -285,7 +285,7 @@ def f_prime(x):
     """
     return -np.sin(x)
 
-print(newton(f,f_prime,[1,1],n_step,tau))
+#print(newton(f,f_prime,[1,1],n_step,tau))
 
 def newton_2(f,f_prime,I,n_step,tau):
     """
@@ -331,12 +331,49 @@ def check_convergence():
     plt.savefig('iterative_results/q3_errors.jpg',dpi=150)
     plt.show()
     return errors
-check_convergence()
+#check_convergence()
 
-#methods = {'bisection':bisection}
-#s = 'bisection'
-#I = [0,1]
-#locals = {'f': f, 'I' : I, 'n_step': n_step, 'tau':tau}
-#
-#globals()[s](**locals)
+from itertools import combinations
 
+def lagrange(grid,k):
+    """
+    Given a grid of points, return the kth lagrange polynomial
+    Return string polynomial expression in x for evaluation
+    """
+    prim = '(x-)'
+    omega_n = ''
+    test = prim.find('-')
+    x_k = prim[0:test+1]+str(grid[k])+prim[test+1:]
+    print(x_k)
+    print('old grid',grid)
+    grid = np.delete(grid,k)
+    print('new grid',grid)
+    for val in grid:
+        primm = prim
+        omega_n += primm[0:test+1]+str(val)+primm[test+1:] + '*'
+    omega_n = omega_n[0:-1]
+    omega_n_p = ''
+    if k > 2:
+        for s,t in combinations(grid,2):
+            primmm = prim
+            print(s,t)
+            omega_n_p += primmm[0:test+1]+str(s)+primmm[test+1:]+'*' +primmm[0:test+1]+str(t)+primmm[test+1:]+'+'
+    if k <=2:
+        for val in grid:
+            primmm = prim
+            omega_n_p += primmm[0:test+1]+str(val)+primmm[test+1:]+'+'
+    omega_n_p = omega_n_p[0:-1]
+    print(omega_n)
+    print(omega_n_p)
+
+    omega_n_p_k = omega_n_p+'*'+x_k
+    x = np.linspace(-1,2)
+    num = eval(omega_n)
+    denom = eval(omega_n_p)
+    return num / denom
+
+grid = np.arange(3)
+k = 1
+
+plt.plot(lagrange(grid,k))
+plt.show()
