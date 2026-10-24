@@ -69,16 +69,16 @@ def newton(f,f_prime,I,n_step,alpha):
     Perform newton's method on function f with derivative f prime starting at point x_0 random in interval I for n_step iterations to tolerance np.abs(f(x_k))<alpha
     """
     x_0 = np.random.uniform(I[0],I[1])
-#    x_0 = 0.75
     points = np.zeros(n_step,dtype=float)
+
     for i in range(n_step):
         points[i] += x_0
         f_0 = f(x_0)
         f_prime_0 = f_prime(x_0)
         if np.abs(f(x_0))<alpha:
-            print("Tolerance reached at step ",n_step)
+            print("Tolerance reached at step ",i)
             print("Value of root",np.round(x_0,5))
-            return points
+            return points[:i+1]
         elif np.abs(f_prime(x_0))<alpha:
             print('Step blow up')
             return 0
@@ -95,9 +95,6 @@ def f(x):
 def f_prime(x):
     return 3*x**2 - 10*x -4
 
-points = newton(f,f_prime,[-1.,-0.5],10,1e-10)
-
-print(f"f(x_k) to 5 significant digits {f(-0.87527)}")
 
 def phi(x):
     return x - 1/6 * f(x)
@@ -105,20 +102,199 @@ def phi(x):
 
 def iterate(f,x_0,n_step):
     """
-    compose function f with itself n_step+1 times at x_0
+    Recursively compose function f with itself n_step+1 times at x_0
     """
     if n_step == 0:
         return f(x_0)
     else:
         return f(iterate(f,f(x_0),n_step-1))
 
-f_coeffs = np.array([1,-5,-4,1])
-root = points[points != 0][-1]
-iterate_root = iterate(phi,-0.75,15)
 
-f_1_root, f_2_coeffs = poly(f_coeffs,root)
-x = np.linspace(-1,7)
-plt.plot(x,evaluate(f_2_coeffs,x))
-plt.axhline(0,color='red')
-plt.show()
+#points = newton(f,f_prime,[-1.,-0.5],15,1e-10)
+##
+#print(f"f(x_k) to 5 significant digits {f(-0.87527)}")
+#f_coeffs = np.array([1,-5,-4,1])
+#root = points[-1]
+#print(points)
+#iterate_root = iterate(phi,-0.75,15)
+#
+#f_1_root, f_2_coeffs = poly(f_coeffs,root)
+
+#print(f_2_coeffs)
+#f_2 = lambda x : f_2_coeffs[0]*x**2 + f_2_coeffs[1]*x + f_2_coeffs[2]
+#f_2_prime = lambda x : 2*f_2_coeffs[0]*x + f_2_coeffs[1]
+#
+#
+#points_2=newton(f_2,f_2_prime,[0,1],10,1e-10)
+#root_2 = points_2[points_2 != 0][-1]
+#
+#points_3 = newton(f_2,f_2_prime,[5,6],10,1e-10)
+#root_3 = points_3[points_3 != 0][-1]
+
+#x = np.linspace(-1,7)
+#plt.plot(x,f(x),label=f'f(x)')
+#plt.plot(x,evaluate(f_2_coeffs,x),label=r'$f_2=\frac{f(x)}{x-\alpha}$')
+#plt.plot(x,f_2_prime(x),label=r'$f_2^{\prime}$')
+#plt.axhline(0,color='red')
+#plt.axvline(root_2,color='purple')
+#plt.text(
+#    x=root_2,
+#    y=3,
+#    s=f' Root {np.round(root_2,5)}'
+#)
+#plt.axvline(root,color='indigo')
+#
+#plt.text(
+#    x=root,
+#    y=20,
+#    s=f' Root {np.round(root,5)}'
+#)
+#plt.axvline(root_3,color='violet')
+#plt.text(
+#    x=root_3,
+#    y=10,
+#    s=f' Root {np.round(root_3,5)}'
+#)
+#plt.grid()
+#plt.legend()
+#plt.title(r"Roots of cubic $f(x) = x^3-5x^2-4x+1$")
+#plt.tight_layout()
+#plt.savefig('iterative_results/q2_roots.jpg',dpi=150)
+#plt.show()
+
+
+def bisection(f,I,n_step,tau):
+    """
+    Perform bisection on f on interval I for n_step at tolerance alpha
+    """
+    a = I[0]
+    b = I[1]
+    points = np.zeros((2,n_step))
+    x_star = 0
+    if np.sign(f(a))==np.sign(f(b)):
+        print(f"f doesn't change sign on {a}, {b}")
+        return 0
+    for step in range(n_step):
+        half_len = (b-a)/2
+        x_star = a + half_len
+        points[0,step] = a
+        points[1,step] = b
+        if half_len < tau:
+            print(f'Tolerance {tau} reached at step {step}')
+
+            points = points[:,:step]
+            return x_star,points
+        if np.sign(f(a))!= np.sign(f(x_star)):
+            b = x_star
+        else:
+            a= x_star
+
+    return x_star,points
+
+
+def f(x):
+    """
+    Question 3
+    """
+    return np.cos(x)-2/3
+
+#n_step = 15
+#tau = 1e-3
+#root, points = bisection(f,[0,np.pi/2],n_step,tau)
+#
+#step_stop=points.shape[1]
+#steps = np.arange(step_stop)
+#plt.plot(steps,points[1,:],'.',label='upper bound')
+#plt.plot(steps,points[0,:],'.',label='lower bound')
+#plt.fill_between(steps,points[0],points[1],alpha=0.2)
+#plt.axhline(root,color='red',alpha=0.2)
+#plt.text(
+#    x = 1,
+#    y = root,
+#    s = f'Root at {np.round(root,3)}'
+#)
+#plt.xlabel('Steps')
+#plt.legend()
+#plt.grid()
+#plt.title(rf'Bisection for $cos(x)-2/3$ on $[0,\pi/2]$ {'\n'} Steps {n_step} Tol {tau} at {step_stop+1}')
+#plt.tight_layout
+#plt.savefig('iterative_results/q3_bisection.jpg',dpi=150)
+#plt.show()
+
+def iterate_u(f,x_0,n_step,tau):
+    """
+    Tracking |x_{n-1}-x_n|< tau where tau is tolerance for the algorithm for maximum n_steps
+    """
+    points = np.zeros(n_step,dtype=float)
+    points[0]+=x_0
+    for step in range(1,n_step):
+        x = f(x_0)
+        if np.abs(x_0-x) < tau:
+            print(f'Tolerance {tau} reached at step {step}')
+            points = points[:step]
+            return points
+        points[step] += x
+        x_0 = x
+    return points
+
+def phi(x):
+    """
+    Question 3 b
+    """
+    return x + f(x)
+
+n_step = 15
+tau = 1e-3
+x_0 = 0
+points = iterate_u(phi,0,n_step,tau)
+root = points[-1]
+step_stop = points.shape[0]
+#steps = np.arange(step_stop)
+#plt.plot(steps,points)
+#plt.title(rf"Successive sub. on $\phi(x) = x + f(x)$ {'\n'} at $x_0 = {x_0}$ Tol {tau} reached at step {step_stop}")
+#plt.axhline(root,label=f'Root {root}',color='red',alpha=0.5)
+#plt.text(
+#    x = 0,
+#    y = root,
+#    s = f'Root at {np.round(root,3)}'
+#)
+#plt.grid()
+#plt.tight_layout()
+#plt.savefig('iterative_results/q3_substitution.jpg',dpi=150)
+#plt.show()
+
+def atiken(seq,tau):
+    """
+    Perform Atiken's method on n => 2 sequence seq. Quit when tolerance tau is reached for |x_n-x{n-1}|
+    """
+    n_points = seq.shape[0]-2
+    points = np.zeros(n_points,dtype=float)
+    for i in range(n_points):
+        points[i] += seq[i] - (seq[i+1]-seq[i])**2 / (seq[i+2]-2*seq[i+1]+seq[i])
+        if np.abs(points[i-1]-points[i]) < tau:
+            print(f'Tolerance reached at step {i}')
+            points = points[:i]
+            return points
+    return points
+
+#print(atiken(points,tau))
+
+def f_prime(x):
+    """
+    Question 3 d)
+    """
+    return -np.sin(x)
+
+print(newton(f,f_prime,[1,1],n_step,tau))
+
+def check_convergence():
+    """
+    Check convergence on the bisection, successive sub., atiken's and newton's schemes
+    """
+    n_step = 50
+    tau_star = 1e-10
+    x_star = newton(f,f_prime,[1,1],n_step,tau_star)
+    return x_star
+
+print(check_convergence())
 
