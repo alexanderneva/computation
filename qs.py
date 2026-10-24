@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from horner import poly, evaluate
 
 A = np.array([
     [1,2,3],
@@ -111,4 +112,13 @@ def iterate(f,x_0,n_step):
     else:
         return f(iterate(f,f(x_0),n_step-1))
 
-print(iterate(phi,-0.75,20))
+f_coeffs = np.array([1,-5,-4,1])
+root = points[points != 0][-1]
+iterate_root = iterate(phi,-0.75,15)
+
+f_1_root, f_2_coeffs = poly(f_coeffs,root)
+x = np.linspace(-1,7)
+plt.plot(x,evaluate(f_2_coeffs,x))
+plt.axhline(0,color='red')
+plt.show()
+

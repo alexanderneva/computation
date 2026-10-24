@@ -8,8 +8,8 @@ def poly(a,x):
     p = a[0]
     b = np.zeros(a.size-1)
     for i in range(1,a.size):
-        print('p',p)
-        print('index', i, 'coeff',a[i])
+        #        print('p',p)
+        #        print('index', i, 'coeff',a[i])
         b[i-1] += p
         p = a[i] + x*p
 
@@ -38,10 +38,10 @@ def evaluate_f(a,x):
 a = np.array([3,-7,-5,1,-8,2])
 x = 4
 
-print(evaluate(a,x))
-print(evaluate_f(a,x))
-
-print(poly(a,x))
+#print(evaluate(a,x))
+#print(evaluate_f(a,x))
+#
+#print(poly(a,x))
 
 #for i in range(2):
 #    for j in range(2):
