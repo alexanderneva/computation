@@ -409,7 +409,7 @@ def cofactor(A):
             C[i,j] += np.linalg.det(a)
     return C
 
-#print(cofactor(eg_2))
+print(cofactor(eg_2))
 
 def lowup(A):
     """Return the lower triangular and upper part of matrix A, and the diagonal"""
@@ -629,9 +629,11 @@ A = np.array([
 ])
 
 l_1,u_1=doolittle(A)
-#f = np.array([4,6,-13,15])
-#print(np.linalg.solve(A,f))
+f = np.array([4,6,-13,15])
+print(np.linalg.solve(A,f))
 l_2,u_2=lu(A)
+print('sol',lu_solve(A,f))
+print('solve',solve(A,f))
 print(l_1)
 print(l_2)
 print(u_2)
@@ -643,4 +645,3 @@ print('l_2@u_2 \n', l_2@u_2)
 #print(l_1)
 #print(cofactor(A))
 #print(np.linalg.cholesky(A+7*np.eye(4)))
-
