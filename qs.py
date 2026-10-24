@@ -88,8 +88,7 @@ def newton(f,f_prime,I,n_step,alpha):
 
 def f(x):
     """
-    Question 2 a)
-    """
+    Question 2 a) """
     return x**3-5*x**2-4*x+1
 
 def f_prime(x):
@@ -221,10 +220,11 @@ def f(x):
 #plt.savefig('iterative_results/q3_bisection.jpg',dpi=150)
 #plt.show()
 
-def iterate_u(f,x_0,n_step,tau):
+def iterate_u(f,I,n_step,tau):
     """
     Tracking |x_{n-1}-x_n|< tau where tau is tolerance for the algorithm for maximum n_steps
     """
+    x_0=np.mean(I)
     points = np.zeros(n_step,dtype=float)
     points[0]+=x_0
     for step in range(1,n_step):
@@ -287,14 +287,56 @@ def f_prime(x):
 
 print(newton(f,f_prime,[1,1],n_step,tau))
 
+def newton_2(f,f_prime,I,n_step,tau):
+    """
+    Newton where tau controls |x_n-x_{n-1}|
+    """
+    points = np.zeros(n_step,dtype=float)
+    x = np.random.uniform(I[0],I[1])
+    for step in range(n_step):
+        points[step] += x
+        f_x = f(x)
+        f_p = f_prime(x)
+        mult = f_x / f_p
+        x_0 = x
+        x -= mult
+        if np.abs(x-x_0)<tau:
+            print(f"Tolerance {tau} reached at step {step}")
+            return points[:step]
+    return points
+
+    
+
 def check_convergence():
     """
-    Check convergence on the bisection, successive sub., atiken's and newton's schemes
+    Check convergence on the bisection, successive sub., atiken's and newton's schemes. Using low tolerance newton as the benchmark for x_star
     """
     n_step = 50
-    tau_star = 1e-10
-    x_star = newton(f,f_prime,[1,1],n_step,tau_star)
-    return x_star
+    tau, tau_star = 1e-3, 1e-15
+    I = [0,np.pi/2]
+    x_star = newton_2(f,f_prime,[1,1],n_step,tau_star)
+    x_star = x_star[-1]
+    errors = np.zeros((4,n_step),dtype=float)
+    _,test = bisection(f,I,n_step,tau)
+    test_2 = iterate_u(phi,I,n_step,tau)
+    test_3 = atiken(test_2,tau)
+    test_4 = newton_2(f,f_prime,[1,1],n_step,tau)
+    print(test_4)
+    plt.plot(np.abs(np.mean(test,axis=0)-x_star),label='bisection')
+    plt.plot(np.abs(test_2-x_star),label='successive substution')
+    plt.plot(np.abs(test_3-x_star),label='atiken')
+    plt.plot(np.abs(test_4-x_star),label='newton')
+    plt.legend()
+    plt.grid()
+    plt.savefig('iterative_results/q3_errors.jpg',dpi=150)
+    plt.show()
+    return errors
+check_convergence()
 
-print(check_convergence())
+#methods = {'bisection':bisection}
+#s = 'bisection'
+#I = [0,1]
+#locals = {'f': f, 'I' : I, 'n_step': n_step, 'tau':tau}
+#
+#globals()[s](**locals)
 
