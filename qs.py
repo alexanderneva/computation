@@ -372,8 +372,24 @@ def lagrange(grid,k):
     denom = eval(omega_n_p)
     return num / denom
 
-grid = np.arange(3)
-k = 1
 
-plt.plot(lagrange(grid,k))
-plt.show()
+grid = np.arange(4)
+
+def divided_difference(f,grid,k):
+    """
+    For function f return the divided difference of order k on the grid
+    """
+    if grid.size==1:
+        print('k',k, 'grid = ', grid)
+        return f(grid)
+    elif grid.size==2:
+        print(f'grid size {grid.size}')
+        print('grid',grid)
+        return divided_difference(f,grid[1],k-1)-divided_difference(f,grid[0],k-1)/(grid[1]-grid[0])
+    else:
+        print('step',k)
+        print('Grid',grid)
+        return divided_difference(f,grid[1:],k-1) - divided_difference(f,grid[:-1],k-1) / (grid[-1]-grid[0])
+    return 0
+
+print(divided_difference(f,grid,5))
