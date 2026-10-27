@@ -333,45 +333,6 @@ def check_convergence():
     return errors
 #check_convergence()
 
-from itertools import combinations
-
-def lagrange(grid,k):
-    """
-    Given a grid of points, return the kth lagrange polynomial
-    Return string polynomial expression in x for evaluation
-    """
-    prim = '(x-)'
-    omega_n = ''
-    test = prim.find('-')
-    x_k = prim[0:test+1]+str(grid[k])+prim[test+1:]
-    print(x_k)
-    print('old grid',grid)
-    grid = np.delete(grid,k)
-    print('new grid',grid)
-    for val in grid:
-        primm = prim
-        omega_n += primm[0:test+1]+str(val)+primm[test+1:] + '*'
-    omega_n = omega_n[0:-1]
-    omega_n_p = ''
-    if k > 2:
-        for s,t in combinations(grid,2):
-            primmm = prim
-            print(s,t)
-            omega_n_p += primmm[0:test+1]+str(s)+primmm[test+1:]+'*' +primmm[0:test+1]+str(t)+primmm[test+1:]+'+'
-    if k <=2:
-        for val in grid:
-            primmm = prim
-            omega_n_p += primmm[0:test+1]+str(val)+primmm[test+1:]+'+'
-    omega_n_p = omega_n_p[0:-1]
-    print(omega_n)
-    print(omega_n_p)
-
-    omega_n_p_k = omega_n_p+'*'+x_k
-    x = np.linspace(-1,2)
-    num = eval(omega_n)
-    denom = eval(omega_n_p)
-    return num / denom
-
 
 
 def divided_difference(f,grid):
@@ -404,30 +365,32 @@ def w_n(x,grid):
         return (x - grid[0])*w_n(x,grid[1:])
 
 
+def plot_w(n=4):
+    """
+    Plot the polynomial omega_{k} for k <= n-1
+    """
+    grid = np.arange(n,dtype=float)
+    test = lambda x,grid : w_n(x,grid)
+    x = np.linspace(-1,4)
+    fig, ax = plt.subplots(2,2,figsize=(13,8))
+    ax = ax.flatten()
+    for size,axs in enumerate(ax):
+        axs.plot(x,test(x,grid[0:size+1]))
+        for i,point in enumerate(grid[:size+1]):
+            axs.axvline(point)
+            axs.axhline(0,color='red',alpha=0.25)
+            axs.text(
+                x = point,
+                y = i,
+                s = f"point {np.round(point,4)}"
+            )
+        axs.grid()
 
-n = 4
-grid = np.arange(n,dtype=float)
-test = lambda x,grid : w_n(x,grid)
-x = np.linspace(-1,4)
-fig, ax = plt.subplots(2,2,figsize=(13,8))
-ax = ax.flatten()
-for size,axs in enumerate(ax):
-    axs.plot(x,test(x,grid[0:size+1]))
-    for i,point in enumerate(grid[:size+1]):
-        axs.axvline(point)
-        axs.axhline(0,color='red',alpha=0.25)
-        axs.text(
-            x = point,
-            y = i,
-            s = f"point {np.round(point,4)}"
-        )
-    axs.grid()
-
-    axs.set_title(fr"$\omega_{size}(x)$")
-fig.suptitle(rf'first {n} $\omega_n$')
-plt.tight_layout()
-plt.savefig(f'iterative_results/w_{n-1}.jpg',dpi=150)
-plt.show()
+        axs.set_title(fr"$\omega_{size}(x)$")
+        fig.suptitle(rf'first {n} $\omega_n$')
+        plt.tight_layout()
+        plt.savefig(f'iterative_results/w_{n-1}.jpg',dpi=150)
+        plt.show()
 
 def newton_term(f,x,grid,k):
     """
@@ -441,14 +404,6 @@ def newton_term(f,x,grid,k):
     
     return coeff*wn
 
-#print(newton_term(f,x,grid,2))
-#print(f(grid[0]))
-#print(grid.shape)
-#plt.plot(x,newton_term(f,x,grid,1))
-#plt.plot(x,f(x),label = 'f(x)')
-#plt.axhline(0)
-#plt.axhline(f(0),color='red')
-#plt.show()
 
 def newton_interpolate(f,x,grid):
     """
@@ -461,20 +416,70 @@ def newton_interpolate(f,x,grid):
 
     return sum
 
-grid = np.arange(6,dtype=float)
-x = np.linspace(-1,5)
-fig,ax = plt.subplots(2,3,figsize=(13,8))
-for grid_v in range(6):
-    ax = ax.flatten()
-    ax[grid_v].plot(x,newton_interpolate(f,x,grid[0:grid_v+1]),label='p(x)',color='g')
-    ax[grid_v].plot(x,f(x),label = 'f(x)')
-    for point in grid[:grid_v+1]:
-        ax[grid_v].axvline(point,color='red',alpha=0.25)
-    ax[grid_v].set_ylim(-2,2)
-    ax[grid_v].set_title(f"grid {grid[0:grid_v+1]}")
-    ax[grid_v].legend()
-    ax[grid_v].grid()
-fig.suptitle(rf"Polynom interpolation for $f(x)=\cos(x)-2/3$ {'\n'} on {grid}")
-plt.tight_layout()
-plt.savefig(f'iterative_results/newton_interp_{len(grid)}.jpg',dpi=150)
+def plot_newton(n=6):
+    """
+    Plot first n interpolating polynomials
+    """
+    if n % 3 ==0 and n%3 == 0:
+        return 0
+    grid = np.arange(n,dtype=float)
+    x = np.linspace(-1,n)
+    fig,ax = plt.subplots(2,int(n/2),figsize=(13,8))
+    for grid_v in range(n):
+        ax = ax.flatten()
+        ax[grid_v].plot(x,newton_interpolate(f,x,grid[0:grid_v+1]),label='p(x)',color='g')
+        ax[grid_v].plot(x,f(x),label = 'f(x)')
+        for point in grid[:grid_v+1]:
+            ax[grid_v].axvline(point,color='red',alpha=0.25)
+        ax[grid_v].set_ylim(-2,2)
+        ax[grid_v].set_title(f"grid {grid[0:grid_v+1]}")
+        ax[grid_v].legend()
+        ax[grid_v].grid()
+    fig.suptitle(rf"Polynom interpolation for $f(x)=\cos(x)-2/3$ {'\n'} on {grid}")
+    plt.tight_layout()
+    plt.savefig(f'iterative_results/newton_interp_{len(grid)}.jpg',dpi=150)
+    plt.show()
+
+
+plot_newton(8)
+
+from itertools import combinations
+
+def lagrange(grid,k):
+    """
+    Given a grid of points, return the kth lagrange polynomial
+    Return string polynomial expression in x for evaluation
+    """
+    prim = '(x-)'
+    omega_n = ''
+    test = prim.find('-')
+    x_k = prim[0:test+1]+str(grid[k])+prim[test+1:]
+    print(x_k)
+    print('old grid',grid)
+    grid = np.delete(grid,k)
+    print('new grid',grid)
+    for val in grid:
+        primm = prim
+        omega_n += primm[0:test+1]+str(val)+primm[test+1:] + '*'
+    omega_n = omega_n[0:-1]
+    omega_n_p = ''
+    if k > 2:
+        for s,t in combinations(grid,2):
+            primmm = prim
+            print(s,t)
+            omega_n_p += primmm[0:test+1]+str(s)+primmm[test+1:]+'*' +primmm[0:test+1]+str(t)+primmm[test+1:]+'+'
+    if k <=2:
+        for val in grid:
+            primmm = prim
+            omega_n_p += primmm[0:test+1]+str(val)+primmm[test+1:]+'+'
+    omega_n_p = omega_n_p[0:-1]
+
+    omega_n_p_k = omega_n_p+'*'+x_k
+    x = np.linspace(-1,2)
+    num = eval(omega_n)
+    denom = eval(omega_n_p)
+    return num / denom
+
+grid = np.arange(5,dtype=float)
+plt.plot(lagrange(grid,3))
 plt.show()
