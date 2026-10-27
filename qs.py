@@ -420,7 +420,7 @@ def plot_newton(n=6):
     """
     Plot first n interpolating polynomials
     """
-    if n % 3 ==0 and n%3 == 0:
+    if n % 2 != 0 and n%3 != 0:
         return 0
     grid = np.arange(n,dtype=float)
     x = np.linspace(-1,n)
@@ -492,7 +492,10 @@ def w_n_prime(x,grid):
     else:
         x_n = grid[-1]
         grid = grid[:-1]
-        h_n = np.prod(x[:,None]-grid,axis=1)
+        if np.size(x)==1:
+            return np.prod(x-grid)
+        else:
+            h_n = np.prod(x[:,None]-grid,axis=1)
         return h_n + (x-x_n)*w_n_prime(x,grid)
 
 
@@ -527,5 +530,58 @@ def plot_w_prime(n=4):
     plt.show()
     return 1
 
-plot_w_prime(4)
+def lagrange(x,grid,k):
+    """
+    Return the kth lagrange polynomial 
+    """
+    x_k = grid[k]
+    grid_k = np.delete(grid,k)
+    l_nk = w_n(x,grid_k) / w_n_prime(x_k,grid)
+    return l_nk
 
+def lagrange_interpolate(f,x,grid):
+    """
+    Given a function f, and grid points grid, return the Lagrange interpolating polynomial L(x)
+    """
+    sum = 0.
+    for k in range(len(grid)):
+        sum += f(grid[k])*lagrange(x,grid,k)
+
+    return sum
+
+
+
+
+def plot_lagrange(n=6):
+    """
+    Plot first n interpolating polynomials
+    """
+    if n % 3 !=0 and n % 2 != 0:
+        return 0
+    grid = np.arange(n,dtype=float)
+    x = np.linspace(-1,n)
+    fig,ax = plt.subplots(2,int(n/2),figsize=(13,8))
+    for grid_v in range(n):
+        ax = ax.flatten()
+        ax[grid_v].plot(x,lagrange_interpolate(f,x,grid[0:grid_v+1]),label='L(x)',color='g')
+        ax[grid_v].plot(x,f(x),label = 'f(x)')
+        for point in grid[:grid_v+1]:
+            ax[grid_v].axvline(point,color='red',alpha=0.25)
+        ax[grid_v].set_ylim(-2,2)
+        ax[grid_v].set_title(f"grid {grid[0:grid_v+1]}")
+        ax[grid_v].legend()
+        ax[grid_v].grid()
+    fig.suptitle(rf"Polynom interpolation for $f(x)=\cos(x)-2/3$ {'\n'} on {grid}")
+    plt.tight_layout()
+    plt.savefig(f'iterative_results/lagrange_interp_{len(grid)}.jpg',dpi=150)
+    plt.show()
+    return 1
+
+plot_lagrange(6)
+#grid = np.arange(4)
+#x = np.linspace(-2,2)
+##plt.plot(x,lagrange_interpolate(f,x,grid),label='L(x)')
+#plt.plot(x,f(x),label='f(x)')
+#plt.legend()
+#plt.grid()
+#plt.show()
