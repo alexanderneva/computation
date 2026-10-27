@@ -536,8 +536,8 @@ def lagrange(x,grid,k):
     """
     x_k = grid[k]
     grid_k = np.delete(grid,k)
-    denom = w_n_prime(x_k,grid)
-    l_nk = np.divide(w_n(x,grid_k),denom, out = np.zeros_like(x,dtype=float), where = denom!=0)
+    denom = w_n(x_k,grid_k)
+    l_nk = np.divide(w_n(x,grid_k),denom, out = np.ones_like(x,dtype=float), where = denom!=0)
     return l_nk
 
 def lagrange_interpolate(f,x,grid):
@@ -578,11 +578,5 @@ def plot_lagrange(n=6):
     plt.show()
     return 1
 
-#plot_lagrange(6)
-grid = np.arange(5)
-x = np.linspace(-2,5)
-plt.plot(x,lagrange(x,grid,3),label='L(x)')
-#plt.plot(x,f(x),label='f(x)')
-plt.legend()
-plt.grid()
-plt.show()
+plot_lagrange(6)
+#grid = np.arange(5) x = np.linspace(-2,5) plt.plot(x,lagrange_interpolate(f,x,grid),label='L(x)') plt.plot(x,f(x),label='f(x)') plt.legend() plt.grid() plt.show()
