@@ -377,7 +377,7 @@ def plot_w(n=4):
     for size,axs in enumerate(ax):
         axs.plot(x,test(x,grid[0:size+1]))
         for i,point in enumerate(grid[:size+1]):
-            axs.axvline(point)
+            axs.axvline(point,color='orange',alpha=0.25)
             axs.axhline(0,color='red',alpha=0.25)
             axs.text(
                 x = point,
@@ -387,10 +387,10 @@ def plot_w(n=4):
         axs.grid()
 
         axs.set_title(fr"$\omega_{size}(x)$")
-        fig.suptitle(rf'first {n} $\omega_n$')
-        plt.tight_layout()
-        plt.savefig(f'iterative_results/w_{n-1}.jpg',dpi=150)
-        plt.show()
+    fig.suptitle(rf'first {n} $\omega_n$')
+    plt.tight_layout()
+    plt.savefig(f'iterative_results/w_{n-1}.jpg',dpi=150)
+    plt.show()
 
 def newton_term(f,x,grid,k):
     """
@@ -441,14 +441,13 @@ def plot_newton(n=6):
     plt.show()
 
 
-plot_newton(8)
+#plot_newton(8)
 
 from itertools import combinations
 
-def lagrange(grid,k):
+def lagrange_e(grid,k):
     """
-    Given a grid of points, return the kth lagrange polynomial
-    Return string polynomial expression in x for evaluation
+    Using symbolic expression, given a grid of points, return the kth second order lagrange polynomial 
     """
     prim = '(x-)'
     omega_n = ''
@@ -480,6 +479,53 @@ def lagrange(grid,k):
     denom = eval(omega_n_p)
     return num / denom
 
-grid = np.arange(5,dtype=float)
-plt.plot(lagrange(grid,3))
-plt.show()
+
+def w_n_prime(x,grid):
+    """
+    Given a grid of points, return w_n'(x)
+    """
+    n = grid.shape[0]
+    if n == 0:
+        return np.zeros_like(x,dtype=float)
+    if n == 1:
+        return np.ones_like(x,dtype=float)
+    else:
+        x_n = grid[-1]
+        grid = grid[:-1]
+        h_n = np.prod(x[:,None]-grid,axis=1)
+        return h_n + (x-x_n)*w_n_prime(x,grid)
+
+
+
+def plot_w_prime(n=4):
+    """
+    Plot the polynomial omega_{k}' for k <= n-1
+    """
+    if n % 2 != 0:
+        print('Not divisible by 2')
+        return 0
+    grid = np.arange(n,dtype=float)
+    test = lambda x,grid : w_n_prime(x,grid)
+    x = np.linspace(-1,n)
+    fig, ax = plt.subplots(2,2,figsize=(13,8))
+    ax = ax.flatten()
+    for size,axs in enumerate(ax):
+        axs.plot(x,test(x,grid[0:size+1]))
+        for i,point in enumerate(grid[:size+1]):
+            axs.axvline(point,color='orange',alpha=0.5)
+            axs.axhline(0,color='red',alpha=0.25)
+            axs.text(
+                x = point,
+                y = i,
+                s = f"point {np.round(point,4)}"
+            )
+        axs.grid()
+        axs.set_title(fr"$\omega_{size}(x)$")
+    fig.suptitle(rf'first {n} $\omega_n$')
+    plt.tight_layout()
+    plt.savefig(f'iterative_results/w_{n-1}_prime.jpg',dpi=150)
+    plt.show()
+    return 1
+
+plot_w_prime(4)
+
