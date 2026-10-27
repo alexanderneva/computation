@@ -381,20 +381,13 @@ def divided_difference(f,grid):
     if grid.size==0:
         return 0.
     if grid.size==1:
-        print('at 1', grid)
-        #print('k',k, 'grid = ', grid)
         return f(grid)
 
     elif grid.size == 2:
-        #print(f'grid size {grid.size}')
-        #print('grid',grid)
-        return divided_difference(f,grid[1])-divided_difference(f,grid[0])/(grid[1]-grid[0])
+        return (f(grid[1])-f(grid[0]))/(grid[1]-grid[0])
     else:
-        return divided_difference(f,grid[1:]) - divided_difference(f,grid[:-1]) / (grid[-1]-grid[0])
+        return (divided_difference(f,grid[1:]) - divided_difference(f,grid[:-1])) / (grid[-1]-grid[0])
 
-grid = np.arange(1,dtype=float)
-print("printing for 1 ", divided_difference(f,grid))
-print(f(grid))
 
 
 
@@ -402,7 +395,6 @@ def w_n(x,grid):
     """
     Return the function omega_n = (x-x_0)...(x-x_{n}) for value x
     """ 
-#    print('Received grid', grid)
     n = grid.shape[0]
     if n == 0:
         return np.ones_like(x,dtype=float)
@@ -411,25 +403,30 @@ def w_n(x,grid):
     else:
         return (x - grid[0])*w_n(x,grid[1:])
 
+
+
 n = 4
 grid = np.arange(n,dtype=float)
-print(grid.shape)
-print('grid ',grid)
-test = lambda x : w_n(x,grid)
+test = lambda x,grid : w_n(x,grid)
 x = np.linspace(-1,4)
-#print(test(x))
-plt.plot(x,test(x))
-for i,point in enumerate(grid):
-    plt.axvline(point)
-    plt.axhline(0,color='red')
-    plt.text(
-        x = point,
-        y = i,
-        s = f"point {np.round(point,4)}"
-    )
-#plt.ylim(-2,np.max(test(x)))
-plt.title(fr"$w_{n-1}(x)$")
-plt.grid()
+fig, ax = plt.subplots(2,2,figsize=(13,8))
+ax = ax.flatten()
+for size,axs in enumerate(ax):
+    axs.plot(x,test(x,grid[0:size+1]))
+    for i,point in enumerate(grid[:size+1]):
+        axs.axvline(point)
+        axs.axhline(0,color='red',alpha=0.25)
+        axs.text(
+            x = point,
+            y = i,
+            s = f"point {np.round(point,4)}"
+        )
+    axs.grid()
+
+    axs.set_title(fr"$\omega_{size}(x)$")
+fig.suptitle(rf'first {n} $\omega_n$')
+plt.tight_layout()
+plt.savefig(f'iterative_results/w_{n-1}.jpg',dpi=150)
 plt.show()
 
 def newton_term(f,x,grid,k):
@@ -439,8 +436,6 @@ def newton_term(f,x,grid,k):
 
     f_grid = grid[:k+1]
     w_grid = grid[:k]
-    print("grid in newton term",f_grid)
-    print("w_grid in newton term", w_grid)
     coeff = divided_difference(f,f_grid)
     wn = w_n(x,w_grid)
     
@@ -463,21 +458,23 @@ def newton_interpolate(f,x,grid):
     sum = 0
     for k in range(n):
         sum += newton_term(f,x,grid,k)
-#        print('step',k, 'Newton term ', newton_term(f,x,grid,k))
 
     return sum
 
-grid = np.arange(7,dtype=float)
-x = 2
-x = np.linspace(-1,4)
-grid_v = 5
-#print(newton_interpolate(f,x,grid[0:2]))
-plt.plot(x,newton_interpolate(f,x,grid[0:grid_v]),label='p(x)',color='g')
-plt.plot(x,f(x),label = 'f(x)')
-for point in grid[1:]:
-    plt.axhline(f(point))
-plt.ylim(-2,2)
-plt.grid()
-plt.legend()
-plt.title(f"grid {grid[0:grid_v-1]}")
+grid = np.arange(6,dtype=float)
+x = np.linspace(-1,5)
+fig,ax = plt.subplots(2,3,figsize=(13,8))
+for grid_v in range(6):
+    ax = ax.flatten()
+    ax[grid_v].plot(x,newton_interpolate(f,x,grid[0:grid_v+1]),label='p(x)',color='g')
+    ax[grid_v].plot(x,f(x),label = 'f(x)')
+    for point in grid[:grid_v+1]:
+        ax[grid_v].axvline(point,color='red',alpha=0.25)
+    ax[grid_v].set_ylim(-2,2)
+    ax[grid_v].set_title(f"grid {grid[0:grid_v+1]}")
+    ax[grid_v].legend()
+    ax[grid_v].grid()
+fig.suptitle(rf"Polynom interpolation for $f(x)=\cos(x)-2/3$ {'\n'} on {grid}")
+plt.tight_layout()
+plt.savefig(f'iterative_results/newton_interp_{len(grid)}.jpg',dpi=150)
 plt.show()
