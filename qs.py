@@ -373,23 +373,111 @@ def lagrange(grid,k):
     return num / denom
 
 
-grid = np.arange(4)
 
-def divided_difference(f,grid,k):
+def divided_difference(f,grid):
     """
-    For function f return the divided difference of order k on the grid
+    For function f return the divided difference f[x_0,...,x_k] for grid = {x_0,...,x_k}
     """
+    if grid.size==0:
+        return 0.
     if grid.size==1:
-        print('k',k, 'grid = ', grid)
+        print('at 1', grid)
+        #print('k',k, 'grid = ', grid)
         return f(grid)
-    elif grid.size==2:
-        print(f'grid size {grid.size}')
-        print('grid',grid)
-        return divided_difference(f,grid[1],k-1)-divided_difference(f,grid[0],k-1)/(grid[1]-grid[0])
-    else:
-        print('step',k)
-        print('Grid',grid)
-        return divided_difference(f,grid[1:],k-1) - divided_difference(f,grid[:-1],k-1) / (grid[-1]-grid[0])
-    return 0
 
-print(divided_difference(f,grid,5))
+    elif grid.size == 2:
+        #print(f'grid size {grid.size}')
+        #print('grid',grid)
+        return divided_difference(f,grid[1])-divided_difference(f,grid[0])/(grid[1]-grid[0])
+    else:
+        return divided_difference(f,grid[1:]) - divided_difference(f,grid[:-1]) / (grid[-1]-grid[0])
+
+grid = np.arange(1,dtype=float)
+print("printing for 1 ", divided_difference(f,grid))
+print(f(grid))
+
+
+
+def w_n(x,grid):
+    """
+    Return the function omega_n = (x-x_0)...(x-x_{n}) for value x
+    """ 
+#    print('Received grid', grid)
+    n = grid.shape[0]
+    if n == 0:
+        return np.ones_like(x,dtype=float)
+    elif n == 1:
+        return x - grid[0]
+    else:
+        return (x - grid[0])*w_n(x,grid[1:])
+
+n = 4
+grid = np.arange(n,dtype=float)
+print(grid.shape)
+print('grid ',grid)
+test = lambda x : w_n(x,grid)
+x = np.linspace(-1,4)
+#print(test(x))
+plt.plot(x,test(x))
+for i,point in enumerate(grid):
+    plt.axvline(point)
+    plt.axhline(0,color='red')
+    plt.text(
+        x = point,
+        y = i,
+        s = f"point {np.round(point,4)}"
+    )
+#plt.ylim(-2,np.max(test(x)))
+plt.title(fr"$w_{n-1}(x)$")
+plt.grid()
+plt.show()
+
+def newton_term(f,x,grid,k):
+    """
+    Given a grid of n+1 points f(x_0),...,f(x_n), return the kth term of the interpolating polynomial of degree n
+    """
+
+    f_grid = grid[:k+1]
+    w_grid = grid[:k]
+    print("grid in newton term",f_grid)
+    print("w_grid in newton term", w_grid)
+    coeff = divided_difference(f,f_grid)
+    wn = w_n(x,w_grid)
+    
+    return coeff*wn
+
+#print(newton_term(f,x,grid,2))
+#print(f(grid[0]))
+#print(grid.shape)
+#plt.plot(x,newton_term(f,x,grid,1))
+#plt.plot(x,f(x),label = 'f(x)')
+#plt.axhline(0)
+#plt.axhline(f(0),color='red')
+#plt.show()
+
+def newton_interpolate(f,x,grid):
+    """
+    Given a grid of n+1 points f(x_0),...,f(x_n), return the interpolating polynomial of degree n
+    """
+    n = grid.shape[0] 
+    sum = 0
+    for k in range(n):
+        sum += newton_term(f,x,grid,k)
+#        print('step',k, 'Newton term ', newton_term(f,x,grid,k))
+
+    return sum
+
+grid = np.arange(7,dtype=float)
+x = 2
+x = np.linspace(-1,4)
+grid_v = 5
+#print(newton_interpolate(f,x,grid[0:2]))
+plt.plot(x,newton_interpolate(f,x,grid[0:grid_v]),label='p(x)',color='g')
+plt.plot(x,f(x),label = 'f(x)')
+for point in grid[1:]:
+    plt.axhline(f(point))
+plt.ylim(-2,2)
+plt.grid()
+plt.legend()
+plt.title(f"grid {grid[0:grid_v-1]}")
+plt.show()
