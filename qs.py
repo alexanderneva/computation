@@ -551,7 +551,34 @@ def lagrange_interpolate(f,x,grid):
     return sum
 
 
+def plot_lagrange_polynomials(n=4):
+    """
+    Plot the n degree Lagrange polynomials for grid {x_0,...x_{n+1}
+    """
 
+    grid = np.arange(n,dtype=float)
+    test = lambda x,grid,k : lagrange(x,grid,k)
+    x = np.linspace(-1,4)
+    fig, ax = plt.subplots(2,2,figsize=(13,8))
+    ax = ax.flatten()
+    for size,axs in enumerate(ax):
+        axs.plot(x,test(x,grid,size))
+        for i,point in enumerate(grid):
+            axs.axvline(point,color='orange',alpha=0.25)
+            axs.axhline(0,color='red',alpha=0.25)
+            axs.text(
+                x = point,
+                y = i,
+                s = f"point {np.round(point,4)}"
+            )
+        axs.grid()
+        axs.set_title(fr"$L{({n-1},{size})}\left(x\right)$")
+    fig.suptitle(rf'Lagrange polynomials $L_{n-1}$')
+    plt.tight_layout()
+    plt.savefig(f'iterative_results/L_{n-1}.jpg',dpi=150)
+    plt.show()
+
+plot_lagrange_polynomials()
 
 def plot_lagrange(n=6):
     """
@@ -579,4 +606,39 @@ def plot_lagrange(n=6):
     return 1
 
 plot_lagrange(6)
-#grid = np.arange(5) x = np.linspace(-2,5) plt.plot(x,lagrange_interpolate(f,x,grid),label='L(x)') plt.plot(x,f(x),label='f(x)') plt.legend() plt.grid() plt.show()
+
+def calculate_mse(x,y):
+    """
+    Take the MSE of two functions x and y
+    """
+    return np.sqrt((x-y)**2)
+
+grid = np.arange(5)
+x = np.linspace(0,4)
+plt.plot(x,calculate_mse(f(x),lagrange_interpolate(f,x,grid)),label='lagrange')
+plt.plot(x,calculate_mse(f(x), newton_interpolate(f,x,grid)),label='newton')
+plt.grid()
+plt.legend()
+plt.title(f'MSE newton/lagrange polynomial for grid {grid}')
+plt.savefig(f'iterative_results/mse_lagrange_newton_interp_{len(grid)}.jpg',dpi=150)
+plt.show()
+
+def runge(x):
+    """
+    Runge function
+    """
+    mask = lambda x : np.where(x,0,x < -1 or x > 1)
+    print(x[x > 1])
+
+    return 1/(1+25*x**2)
+
+
+grid = np.arange(5)
+x = np.linspace(0,4)
+plt.plot(x,calculate_mse(runge(x),lagrange_interpolate(runge,x,grid)),label='lagrange')
+plt.plot(x,calculate_mse(runge(x), newton_interpolate(runge,x,grid)),label='newton')
+plt.grid()
+plt.legend()
+plt.title(f'MSE newton/lagrange polynomial for grid {grid}')
+plt.savefig(f'iterative_results/mse_ln_runge_interp_{len(grid)}.jpg',dpi=150)
+plt.show()
