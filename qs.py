@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from horner import poly, evaluate
+from horner import poly, evaluate,evaluate_f
 
 A = np.array([
     [1,2,3],
@@ -61,8 +61,18 @@ def take_l(A):
     return c
 #print(mult(A,B))
 #print(A@B)
-l,u = take_ul(A)
+#l,u = take_ul(A)
 
+from nal import lu
+A = np.array([[2,1,4,5],
+             [3,-1,1,2],
+             [2,3,-2,-3],
+             [1,-5,3,6]])
+
+#l,u = lu(A)
+#
+#print(l)
+#print(u)
 
 def newton(f,f_prime,I,n_step,alpha):
     """
@@ -342,7 +352,7 @@ def divided_difference(f,grid):
     if grid.size==0:
         return 0.
     if grid.size==1:
-        return f(grid)
+        return f(grid.item())
 
     elif grid.size == 2:
         return (f(grid[1])-f(grid[0]))/(grid[1]-grid[0])
@@ -403,6 +413,19 @@ def newton_term(f,x,grid,k):
     wn = w_n(x,w_grid)
     
     return coeff*wn
+
+
+def newton_term_2(f,x,grid,k):
+    """
+    Given a grid of n+1 points f(x_0),...,f(x_n), return the product elements of the kth term of the degree n newton polynomial
+    """
+
+    f_grid = grid[:k+1]
+    w_grid = grid[:k]
+    coeff = divided_difference(f,f_grid)
+    wn = w_n(x,w_grid)
+    
+    return coeff,w_n
 
 
 def newton_interpolate(f,x,grid):
@@ -578,7 +601,7 @@ def plot_lagrange_polynomials(n=4):
     plt.savefig(f'iterative_results/L_{n-1}.jpg',dpi=150)
     plt.show()
 
-plot_lagrange_polynomials()
+#plot_lagrange_polynomials()
 
 def plot_lagrange(n=6):
     """
@@ -605,7 +628,7 @@ def plot_lagrange(n=6):
     plt.show()
     return 1
 
-plot_lagrange(6)
+#plot_lagrange(6)
 
 def calculate_mse(x,y):
     """
@@ -613,32 +636,85 @@ def calculate_mse(x,y):
     """
     return np.sqrt((x-y)**2)
 
-grid = np.arange(5)
-x = np.linspace(0,4)
-plt.plot(x,calculate_mse(f(x),lagrange_interpolate(f,x,grid)),label='lagrange')
-plt.plot(x,calculate_mse(f(x), newton_interpolate(f,x,grid)),label='newton')
-plt.grid()
-plt.legend()
-plt.title(f'MSE newton/lagrange polynomial for grid {grid}')
-plt.savefig(f'iterative_results/mse_lagrange_newton_interp_{len(grid)}.jpg',dpi=150)
-plt.show()
+#grid = np.arange(5)
+#x = np.linspace(0,4)
+#plt.plot(x,calculate_mse(f(x),lagrange_interpolate(f,x,grid)),label='lagrange')
+#plt.plot(x,calculate_mse(f(x), newton_interpolate(f,x,grid)),label='newton')
+#plt.grid()
+#plt.legend()
+#plt.title(f'MSE newton/lagrange polynomial for grid {grid}')
+#plt.savefig(f'iterative_results/mse_lagrange_newton_interp_{len(grid)}.jpg',dpi=150)
+#plt.show()
 
 def runge(x):
     """
     Runge function
     """
     mask = lambda x : np.where(x,0,x < -1 or x > 1)
-    print(x[x > 1])
+#    print(x[x > 1])
 
     return 1/(1+25*x**2)
 
 
-grid = np.arange(5)
-x = np.linspace(0,4)
+def c_grid(n):
+    """
+    Return a chebyshev grid on lb,ub of n points
+    """
+    z = np.zeros(n,dtype=float)
+    for k in range(n):
+        z[k] = np.cos((2*k+1)*np.pi/(2*(n+1)))
+    return z
+
+
+n=12
+lb = -1.
+ub = 1.
+grid = np.arange(-1,1,2/n)
+x = np.linspace(lb,ub)
+
+
+coeffs = np.zeros(n,dtype=float)
+for i in range(n):
+    coeff,_ = newton_term_2(f,x,grid,i)
+    coeffs[i] = coeff
+
+
+print(c_grid(n))
+cgrid = c_grid(n)
+
+print(f"Coefficients of {n} order newton polynomial {np.round(coeffs,6)}")
+
+fig, ax = plt.subplots(1,2,figsize=(8,5))
+ax[0].plot(x,lagrange_interpolate(runge,x,grid),label='Runge function Lagrange interpolation')
+ax[0].plot(x,newton_interpolate(runge,x,grid),label='Runge function Newton interpolation')
+ax[0].plot(x,runge(x), label='Runge function')
+#plt.plot(x,w_n(x,grid),label='w_n')
+ax[0].scatter(grid,runge(grid),label='Sample points',c='green',alpha=0.5)
+ax[0].set_ylim(-1,1)
+ax[0].set_title(fr"Runge Function on $\Delta$ ,{'\n'} lb = {lb} ub = {ub}")
+
+ax[1].plot(x,lagrange_interpolate(runge,x,cgrid),label='Runge function Lagrange interpolation')
+ax[1].plot(x,newton_interpolate(runge,x,cgrid),label='Runge function Newton interpolation')
+ax[1].plot(x,runge(x), label='Runge function')
+#pl1.plot(x,w_n(x,grid),label='w_n')
+ax[1].scatter(cgrid,runge(cgrid),label='Sample points',c='green',alpha=0.5)
+ax[1].set_ylim(-1,1)
+plt.legend()
+ax[1].set_title(fr"Runge Function on Grid $\Delta_C$ ,{'\n'} lb = {lb} ub = {ub}")
+fig.suptitle("Runge function even grid vs. chebyshev grid")
+fig.tight_layout()
+
+plt.show()
+
+x = np.linspace(-1,1)
 plt.plot(x,calculate_mse(runge(x),lagrange_interpolate(runge,x,grid)),label='lagrange')
 plt.plot(x,calculate_mse(runge(x), newton_interpolate(runge,x,grid)),label='newton')
+
+plt.plot(x,calculate_mse(runge(x),lagrange_interpolate(runge,x,cgrid)),label='lagrange c_grid')
+plt.plot(x,calculate_mse(runge(x), newton_interpolate(runge,x,cgrid)),label='newton c_grid')
 plt.grid()
-plt.legend()
-plt.title(f'MSE newton/lagrange polynomial for grid {grid}')
+plt.ylim(0,2)
+plt.legend(loc='center')
+plt.title(f'MSE newton/lagrange polynomial for grid {len(grid)}\n chebyshev grid {len(cgrid)}')
 plt.savefig(f'iterative_results/mse_ln_runge_interp_{len(grid)}.jpg',dpi=150)
 plt.show()

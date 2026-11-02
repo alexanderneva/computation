@@ -35,9 +35,22 @@ def evaluate_f(a,x):
         total += j*x**(i)
     return total
 
+
+def evaluate_fw(a,x,w):
+    """
+    Ascending evaluate a polynomial at point x with coeficients a and weights w
+    """
+    total = 0
+    if len(w)!=len(a):
+        print("Weight and coefficient length must match")
+        return 0
+    for i,j in enumerate(reversed(a)):
+        total += j*w[i](x)
+    return total
+
+
 a = np.array([3,-7,-5,1,-8,2])
 x = 4
-
 #print(evaluate(a,x))
 #print(evaluate_f(a,x))
 #
