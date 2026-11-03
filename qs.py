@@ -683,38 +683,87 @@ print(c_grid(n))
 cgrid = c_grid(n)
 
 print(f"Coefficients of {n} order newton polynomial {np.round(coeffs,6)}")
+def plot_runge():
+    fig, ax = plt.subplots(1,2,figsize=(8,5))
+    ax[0].plot(x,lagrange_interpolate(runge,x,grid),label='Runge function Lagrange interpolation')
+    ax[0].plot(x,newton_interpolate(runge,x,grid),label='Runge function Newton interpolation')
+    ax[0].plot(x,runge(x), label='Runge function')
+    #plt.plot(x,w_n(x,grid),label='w_n')
+    ax[0].scatter(grid,runge(grid),label='Sample points',c='green',alpha=0.5)
+    ax[0].set_ylim(-1,1)
+    ax[0].set_title(fr"Runge Function on $\Delta$ ,{'\n'} lb = {lb} ub = {ub}")
 
-fig, ax = plt.subplots(1,2,figsize=(8,5))
-ax[0].plot(x,lagrange_interpolate(runge,x,grid),label='Runge function Lagrange interpolation')
-ax[0].plot(x,newton_interpolate(runge,x,grid),label='Runge function Newton interpolation')
-ax[0].plot(x,runge(x), label='Runge function')
-#plt.plot(x,w_n(x,grid),label='w_n')
-ax[0].scatter(grid,runge(grid),label='Sample points',c='green',alpha=0.5)
-ax[0].set_ylim(-1,1)
-ax[0].set_title(fr"Runge Function on $\Delta$ ,{'\n'} lb = {lb} ub = {ub}")
+    ax[1].plot(x,lagrange_interpolate(runge,x,cgrid),label='Runge function Lagrange interpolation')
+    ax[1].plot(x,newton_interpolate(runge,x,cgrid),label='Runge function Newton interpolation')
+    ax[1].plot(x,runge(x), label='Runge function')
+    #pl1.plot(x,w_n(x,grid),label='w_n')
+    ax[1].scatter(cgrid,runge(cgrid),label='Sample points',c='green',alpha=0.5)
+    ax[1].set_ylim(-1,1)
+    plt.legend()
+    ax[1].set_title(fr"Runge Function on Grid $\Delta_C$ ,{'\n'} lb = {lb} ub = {ub}")
+    fig.suptitle("Runge function even grid vs. chebyshev grid")
+    fig.tight_layout()
+    plt.savefig(f'iterative_results/runge_interp_uni_chebi_grid_{len(grid)}.jpg',dpi=150)
+    plt.show()
 
-ax[1].plot(x,lagrange_interpolate(runge,x,cgrid),label='Runge function Lagrange interpolation')
-ax[1].plot(x,newton_interpolate(runge,x,cgrid),label='Runge function Newton interpolation')
-ax[1].plot(x,runge(x), label='Runge function')
-#pl1.plot(x,w_n(x,grid),label='w_n')
-ax[1].scatter(cgrid,runge(cgrid),label='Sample points',c='green',alpha=0.5)
-ax[1].set_ylim(-1,1)
-plt.legend()
-ax[1].set_title(fr"Runge Function on Grid $\Delta_C$ ,{'\n'} lb = {lb} ub = {ub}")
-fig.suptitle("Runge function even grid vs. chebyshev grid")
-fig.tight_layout()
+    x = np.linspace(-1,1)
+    plt.plot(x,calculate_mse(runge(x),lagrange_interpolate(runge,x,grid)),label='lagrange')
+    plt.plot(x,calculate_mse(runge(x), newton_interpolate(runge,x,grid)),label='newton')
 
-plt.show()
+    plt.plot(x,calculate_mse(runge(x),lagrange_interpolate(runge,x,cgrid)),label='lagrange c_grid')
+    plt.plot(x,calculate_mse(runge(x), newton_interpolate(runge,x,cgrid)),label='newton c_grid')
+    plt.grid()
+    plt.ylim(0,2)
+    plt.legend(loc='center')
+    plt.title(f'MSE newton/lagrange polynomial for grid {len(grid)}\n chebyshev grid {len(cgrid)}')
+    plt.savefig(f'iterative_results/mse_ln_runge_interp_{len(grid)}.jpg',dpi=150)
+    plt.show()
 
-x = np.linspace(-1,1)
-plt.plot(x,calculate_mse(runge(x),lagrange_interpolate(runge,x,grid)),label='lagrange')
-plt.plot(x,calculate_mse(runge(x), newton_interpolate(runge,x,grid)),label='newton')
+def lagrange_interpolate_data(data,x):
+    """
+    Given data of the form
+    (x,f(x)) : (n,2) array,
+    produce the lagrange interpolating polynomial
+    """
+    f = data[:,1]
+    grid = data[:,0]
+    sum = 0
+    for k in range(len(grid)):
+        sum += f[k]*lagrange(x,grid,k)
+    return sum
 
-plt.plot(x,calculate_mse(runge(x),lagrange_interpolate(runge,x,cgrid)),label='lagrange c_grid')
-plt.plot(x,calculate_mse(runge(x), newton_interpolate(runge,x,cgrid)),label='newton c_grid')
-plt.grid()
-plt.ylim(0,2)
-plt.legend(loc='center')
-plt.title(f'MSE newton/lagrange polynomial for grid {len(grid)}\n chebyshev grid {len(cgrid)}')
-plt.savefig(f'iterative_results/mse_ln_runge_interp_{len(grid)}.jpg',dpi=150)
-plt.show()
+    
+
+def experiment_1(n):
+    """
+    Return the lagrange interpolating polynomial on random data of length n
+    """
+    toy_graph = np.array([[0,1],
+                         [1,-1],
+                          [2,0],
+                          [3,1],
+                         [4,-1],
+                         [5,0]])
+
+    fs = np.random.normal(loc=1,scale=0.5,size=(n,))
+    xs = np.arange(0,n)
+    toy_graph = np.column_stack([xs.T,fs.T])
+    print(fs.T)
+    print(xs.T)
+    print(toy_graph.shape)
+    x = np.linspace(0,n)
+    plt.plot(x,lagrange_interpolate_data(toy_graph,x),label='interpolating polynomial')
+    plt.plot(toy_graph[:,0],toy_graph[:,1],'.',color='red',label='data')
+    plt.ylim(-3,3)
+    plt.legend()
+    plt.title(f"Lagrange polynomial on random data of shape {toy_graph.shape}")
+    plt.show()
+    return 1
+
+
+
+graph = np.array([[-1,13],
+                  [0,7],
+                 [1,9]])
+
+experiment_1(20)
