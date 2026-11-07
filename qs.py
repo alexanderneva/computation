@@ -766,4 +766,57 @@ graph = np.array([[-1,13],
                   [0,7],
                  [1,9]])
 
-experiment_1(20)
+#experiment_1(20)
+def forward_difference(seq,k,index):
+    """
+    For a sequence seq of points, return the k-th order forward difference at index
+    """
+    if k ==0:
+        return 1
+    elif type(seq)==np.int64:
+        return 0
+    elif k > len(seq):
+        return 0
+
+    elif 0<=index and k+index < len(seq)-1:
+
+        if k == 1:
+            delta = seq[index+1] - seq[index]
+            seq[index] = delta
+            return delta
+    #    if k <= 2 and k <=index+1:
+    #        return seq[index+1]-seq[index]
+        else:
+            delta_1 = forward_difference(seq,1,index+1)
+            delta_2 = forward_difference(seq,1,index)
+            delta = delta_1-delta_2
+            return forward_difference(delta,k-1,index)
+#            return forward_difference(forward_difference(seq,k-1,index),1,index)
+    else:
+        print("Index out of bounds")
+        return 0
+
+def forward_difference(seq,k):
+    L = len(seq)
+    if L == 0:
+        return seq
+    elif L == k:
+        return seq
+    else:
+        new = seq[:-1]
+        for i in range(L-1):
+            new[i] = seq[i+1]-seq[i]
+        return forward_difference(new,k)
+
+
+for i in range(17):
+    seq = np.arange(16)
+    print(f"Forward difference {i} ", forward_difference(seq,i))
+#print(seq)
+x0 = np.repeat(1,2)
+x1 = np.repeat(2,3)
+x2 = np.array([3])
+grid = np.concatenate([x0,x1,x2])
+#print(grid)
+f = lambda x : np.exp(x)
+
