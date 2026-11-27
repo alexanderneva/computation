@@ -5,6 +5,6 @@ function P = laguerre (n,x)
   elseif (n==1)
     P = 1-x;
   else
-    P = 1/(n+1).*((2*n+1-x).*laguerre(n-1,x) - laguerre(n-2,x));
+    P = 1/n .* ((2*n-x-1 ).*laguerre(n-1,x) - (n-1).*laguerre(n-2,x));
   endif
 endfunction

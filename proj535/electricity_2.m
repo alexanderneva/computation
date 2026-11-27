@@ -68,7 +68,7 @@ order = 7;
 hold on;
 for i=1:3
     plot(tday(:,i),data(:,i),'Color',colors(i,:));
-    A_1 = poly_design(tday(:,i),'laguerre',order);
+    [A_1,~] = poly_design(tday(:,i),'laguerre',order);
     c_1 = A_1 \ data(:,i);
     yfit = A_1*c_1;
     plot(tday(:,i),yfit,'LineWidth',1.2);
