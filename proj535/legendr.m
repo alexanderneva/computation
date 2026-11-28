@@ -4,7 +4,7 @@ function P = legendr (n,x)
   elseif (n==1)
     P = x;
   else
-    P = 1 / (n+1) .* ((2*n+1).*x.*legendr(n-1,x) - n*legendr(n-2,x));
-  endif
-endfunction
+    P = (1 / n) .* ((2*n-1).*x.*legendr(n-1,x) - (n-1)*legendr(n-2,x));
+  end
+end
 

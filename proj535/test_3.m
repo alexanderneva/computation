@@ -1,5 +1,5 @@
-N = 50;
-n_basis =4;
+N = 100;
+n_basis =3;
 x = randn(N,2);
 xmin = min(x, [], 1);
 xmax = max(x, [], 1);
@@ -12,7 +12,7 @@ t2_scaled = 2 .* (t_2 - xmin(2)) ./ (xmax(2) - xmin(2)) - 1;
 x = x_scaled;
 [U, V] = meshgrid(t1_scaled, t2_scaled);
 %[U,V] = meshgrid(t_1,t_2);
-y = sin(2*x(:,1))+x(:,2).^2+randn(N,1);
+y = sin(5*x(:,1))+x(:,2).^2+randn(N,1);
 
 X_1 = zeros(N,n_basis);
 X_2 = zeros(N,n_basis);
@@ -31,7 +31,7 @@ z = H1*sol(1:n_basis) + H2(:,2:n_basis)*sol(n_basis+1:end);
 scatter3(x(:,1),x(:,2),y,'.');
 zlabel("y");
 hold on;
-surf(t1_scaled,t2_scaled,reshape(z,size(U)));
+%surf(t1_scaled,t2_scaled,reshape(z,size(U)));
 tprod = zeros(N,n_basis*2);
 
 for i=1:n_basis
@@ -54,7 +54,7 @@ endfor
 
 
 Z = reshape(z_2 * sol_2, size(U));
-scatter3(x(:,1),x(:,2),y,'.');
+scatter3(x(:,1),x(:,2),y,100);
 zlabel("y");
 hold on;
 surf(t1_scaled, t2_scaled, Z);

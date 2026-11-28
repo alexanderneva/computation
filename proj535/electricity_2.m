@@ -61,7 +61,8 @@ else
   data = dataday;
 endif
 
-fig = figure('visible','off');
+%fig = figure('visible','off');
+fig = figure();
 set(fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 10 12]);
 colors = lines(3);
 order = 7;

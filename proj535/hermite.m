@@ -5,6 +5,6 @@ function P = hermite (n,x)
   elseif (n==1)
     P = 2*x;
   else
-    P = 2.*x.*hermite(n-1,x) - 2.*n.*hermite(n-2,x);
+    P = 2.*x.*hermite(n-1,x) - 2.*(n-1).*hermite(n-2,x);
   endif
 endfunction
